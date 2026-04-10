@@ -70,7 +70,7 @@ const Header = () => {
             </Link>
           ))}
           <Link 
-            to="/contact" 
+            to="/Contact" 
             className="px-8 py-3 bg-brand-gold text-brand-dark text-[10px] uppercase tracking-widest font-bold hover:bg-white transition-all duration-500"
           >
             Inquire

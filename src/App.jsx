@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Puppies from './pages/Puppies'; 
 import Breed from './pages/Breed'; 
 import OurStory from './pages/OurStory'; 
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -33,6 +34,10 @@ function App() {
 
             {/* Route pour l'histoire de l'élevage */}
             <Route path="/our-story" element={<OurStory />} />
+
+             {/* Route pour le contact */}
+            <Route path="/contact" element={<Contact />} />
+
           </Routes>
         </main>
 
