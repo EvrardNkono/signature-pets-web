@@ -2,13 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
-  // Numéro WhatsApp formaté pour le lien (sans espaces ni tirets)
+  // WhatsApp number formatted for the link
   const whatsappNumber = "13375671208"; 
   const whatsappLink = `https://wa.me/${whatsappNumber}`;
 
   return (
     <footer className="bg-brand-dark text-white pt-20 pb-10 border-t border-brand-gold/10 relative overflow-hidden">
-      {/* Texture de fond légère */}
+      {/* Light background texture */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30 L30 0 M30 30 L60 30 M30 30 L30 60 M30 30 L0 30' stroke='%23d4af37' stroke-width='1'/%3E%3C/svg%3E")` }}></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -25,10 +25,9 @@ const Footer = () => {
               </h2>
             </Link>
             <p className="text-white/40 text-xs leading-relaxed tracking-wide uppercase font-light">
-              L'excellence au service de la compagnie canine. Éleveur passionné de Cavapoos d'exception.
+              Excellence in canine companionship. Dedicated breeders of exceptional pedigree companions.
             </p>
             <div className="flex gap-4">
-              {/* WhatsApp Icon Link */}
               <a 
                 href={whatsappLink} 
                 target="_blank" 
@@ -62,17 +61,17 @@ const Footer = () => {
           <div className="space-y-6">
             <h4 className="text-brand-gold text-[10px] uppercase tracking-[0.4em] font-bold">Concierge</h4>
             <ul className="space-y-4 text-white/60 text-[10px] uppercase tracking-widest">
-              <li>Lieu: Melun, France</li>
-              <li>Email: contact@signature-pets.fr</li>
+              <li>Location: Louisiana, United States</li>
+              <li>Email: contact@signature-pets.com</li>
               <li className="text-brand-gold font-bold">+1 (337) 567-1208</li>
             </ul>
           </div>
 
-          {/* 4. Action Directe WhatsApp */}
+          {/* 4. Direct WhatsApp Action */}
           <div className="space-y-6">
             <h4 className="text-brand-gold text-[10px] uppercase tracking-[0.4em] font-bold">Inquiry</h4>
             <p className="text-white/40 text-[10px] uppercase tracking-widest leading-loose">
-              Prêt à accueillir un nouveau membre dans votre famille ? Discutez avec nous.
+              Ready to welcome a new member to your family? Chat with our experts.
             </p>
             <a 
               href={whatsappLink}
@@ -94,8 +93,8 @@ const Footer = () => {
         <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[8px] uppercase tracking-[0.5em] text-white/20">
           <span>© 2026 Signature Pets. All Rights Reserved.</span>
           <div className="flex gap-8">
-            <Link to="/legal" className="hover:text-brand-gold transition-colors">Mentions Légales</Link>
-            <Link to="/privacy" className="hover:text-brand-gold transition-colors">Confidentialité</Link>
+            <Link to="/legal" className="hover:text-brand-gold transition-colors">Legal Mentions</Link>
+            <Link to="/privacy" className="hover:text-brand-gold transition-colors">Privacy Policy</Link>
           </div>
         </div>
       </div>
