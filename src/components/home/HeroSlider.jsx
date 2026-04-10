@@ -24,9 +24,7 @@ const HeroSlider = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-transparent to-brand-dark"></div>
       </div>
 
-      {/* 2. Main Content Wrapper 
-          Changé en justify-start + md:pt-40 pour descendre le bloc manuellement
-      */}
+      {/* 2. Main Content Wrapper */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center md:justify-start pt-20 md:pt-44">
         
         {/* Decorative Circle Container */}
@@ -37,23 +35,25 @@ const HeroSlider = () => {
           <div className="absolute -inset-8 border border-brand-gold/5 rounded-full animate-spin-slow-reverse opacity-30"></div>
 
           {/* Masked Swiper Circle */}
-          <div className="relative h-full w-full rounded-full border-[3px] border-brand-gold overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)]">
+          <div className="relative h-full w-full rounded-full border-[3px] border-brand-gold overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)] z-0">
             <Swiper
               modules={[Autoplay, EffectFade]}
               effect="fade"
-              autoplay={{ delay: 5000 }}
+              fadeEffect={{ crossFade: true }} // Assure une transition propre pour la 1ère image
+              autoplay={{ delay: 5000, disableOnInteraction: false }}
               loop={true}
               className="h-full w-full"
             >
               {slideImages.map((img, index) => (
-                <SwiperSlide key={index}>
+                <SwiperSlide key={index} className="bg-brand-dark">
                   <img src={img} className="h-full w-full object-cover" alt={`Puppy ${index}`} />
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
 
-          <div className="absolute -right-4 bottom-10 bg-brand-terracotta text-white px-6 py-2 text-[9px] font-bold uppercase tracking-[0.2em] -rotate-12 shadow-2xl border border-white/10">
+          {/* Étiquette Terracotta : z-50 et pointer-events-none pour ne pas bloquer le swiper */}
+          <div className="absolute -right-4 bottom-10 bg-brand-terracotta text-white px-6 py-2 text-[9px] font-bold uppercase tracking-[0.2em] -rotate-12 shadow-2xl border border-white/10 z-50 pointer-events-none">
             New Litter
           </div>
         </div>
