@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- Couleurs Signature --- */
+  --color-brand-terracotta: #E2725B;
+  --color-brand-gold: #D4AF37;
+  --color-brand-dark: #121212;
+
+  /* --- Typographie --- */
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* --- Animations Luxe pour le Hero --- */
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes spin-slow-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  --animate-spin-slow: spin-slow 20s linear infinite;
+  --animate-spin-slow-reverse: spin-slow-reverse 30s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+/* --- Configuration Globale --- */
+@layer base {
+  body {
+    @apply bg-[#FAFAFA] text-brand-dark antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+  }
+}
+
+/* --- Utilitaires de Scroll Bar (Optionnel pour le look) --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-gold);
+  border-radius: 10px;
+}
