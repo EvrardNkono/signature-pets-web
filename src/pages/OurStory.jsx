@@ -8,13 +8,13 @@ const OurStory = () => {
   return (
     <div className="bg-white min-h-screen">
       
-      {/* --- 1. Hero Section --- */}
+      {/* --- 1. Hero Section : Image Immense et Élégante --- */}
       <section className="relative h-[70vh] flex items-center justify-center bg-brand-dark overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/images/story-hero.jpg" 
-            alt="Our journey" 
-            className="w-full h-full object-cover opacity-30 grayscale-[0.2]"
+            src="https://images.unsplash.com/photo-1551730459-92db2a308d6a?q=80&w=2000&auto=format&fit=crop" 
+            alt="Signature Pets Heritage" 
+            className="w-full h-full object-cover opacity-40 grayscale-[0.2]"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/90 via-transparent to-brand-dark"></div>
         </div>
@@ -40,7 +40,7 @@ const OurStory = () => {
         </div>
       </section>
 
-      {/* --- 3. Philosophy & Image Showcase --- */}
+      {/* --- 3. Philosophy & Image Showcase : Nouvelles Images --- */}
       <section className="bg-gray-50 py-32 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row gap-20">
@@ -61,25 +61,25 @@ const OurStory = () => {
               </ul>
             </div>
 
-            {/* Right Images */}
+            {/* Right Images - MISES À JOUR AVEC UNSPLASH */}
             <div className="lg:w-2/3 space-y-12">
               <div className="relative">
-                <div className="group overflow-hidden rounded-sm shadow-2xl">
+                <div className="group overflow-hidden rounded-sm shadow-2xl aspect-[16/9]">
                   <img 
-                    src="/images/work.png" 
-                    alt="Work - Excellence" 
-                    className="w-full h-auto object-contain transition-transform duration-1000 group-hover:scale-105" 
+                    src="images/work.png" 
+                    alt="Work - Excellence in detail" 
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
                   />
                 </div>
                 <span className="absolute -bottom-6 -left-6 text-[100px] font-serif italic text-brand-gold/10 pointer-events-none">Work</span>
               </div>
 
               <div className="relative pt-12 lg:pl-20">
-                <div className="group overflow-hidden rounded-sm shadow-2xl">
+                <div className="group overflow-hidden rounded-sm shadow-2xl aspect-[16/9]">
                   <img 
-                    src="/images/passion.png" 
-                    alt="Passion - Love" 
-                    className="w-full h-auto object-contain transition-transform duration-1000 group-hover:scale-105" 
+                    src="images/passion.png" 
+                    alt="Passion - The human-canine bond" 
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
                   />
                 </div>
                 <span className="absolute -top-6 -right-6 text-[100px] font-serif italic text-brand-gold/10 pointer-events-none">Passion</span>
@@ -109,7 +109,7 @@ const OurStory = () => {
         </div>
       </section>
 
-      {/* --- 5. Final Signature Section --- */}
+      {/* --- 5. Final CTA --- */}
       <section className="py-32 bg-brand-dark text-center relative overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none uppercase font-serif text-[20vw] text-white">
           Signature

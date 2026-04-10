@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
 
@@ -6,10 +7,11 @@ import 'swiper/css';
 import 'swiper/css/effect-fade';
 
 const HeroSlider = () => {
+  // Chemins mis à jour avec tes images locales
   const slideImages = [
-    "https://images.unsplash.com/photo-1591768793355-74d7af236c1f?q=80&w=1000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1598133894008-61f7fdb8cc3a?q=80&w=1000&auto=format&fit=crop"
+    "images/milo.jpg",
+    "images/zoe.jpg",
+    "images/nala.jpg"
   ];
 
   return (
@@ -35,31 +37,39 @@ const HeroSlider = () => {
           <div className="absolute -inset-8 border border-brand-gold/5 rounded-full animate-spin-slow-reverse opacity-30"></div>
 
           {/* Masked Swiper Circle */}
-          <div className="relative h-full w-full rounded-full border-[3px] border-brand-gold overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)] z-0">
+          <div className="relative h-full w-full rounded-full border-[3px] border-brand-gold overflow-hidden shadow-[0_0_60px_rgba(212,175,55,0.15)]">
             <Swiper
               modules={[Autoplay, EffectFade]}
               effect="fade"
-              fadeEffect={{ crossFade: true }} // Assure une transition propre pour la 1ère image
-              autoplay={{ delay: 5000, disableOnInteraction: false }}
+              fadeEffect={{ crossFade: true }}
+              autoplay={{ delay: 2000, disableOnInteraction: false }}
               loop={true}
+              observer={true}          // Force Swiper à se mettre à jour
+              observeParents={true}    // Surveille les changements du parent
               className="h-full w-full"
             >
               {slideImages.map((img, index) => (
-                <SwiperSlide key={index} className="bg-brand-dark">
-                  <img src={img} className="h-full w-full object-cover" alt={`Puppy ${index}`} />
+                <SwiperSlide key={index} className="bg-brand-dark h-full w-full">
+                  <img 
+                    src={img} 
+                    className="h-full w-full object-cover" 
+                    alt={`Puppy ${index}`} 
+                    // Ajout d'une clé pour forcer le refresh si besoin
+                    key={img} 
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
 
-          {/* Étiquette Terracotta : z-50 et pointer-events-none pour ne pas bloquer le swiper */}
-          <div className="absolute -right-4 bottom-10 bg-brand-terracotta text-white px-6 py-2 text-[9px] font-bold uppercase tracking-[0.2em] -rotate-12 shadow-2xl border border-white/10 z-50 pointer-events-none">
+          {/* Étiquette Terracotta */}
+          <div className="absolute -right-4 bottom-10 bg-brand-terracotta text-white px-6 py-2 text-[9px] font-bold uppercase tracking-[0.2em] -rotate-12 shadow-2xl border border-white/10 z-20 pointer-events-none">
             New Litter
           </div>
         </div>
 
         {/* 3. Text & CTA */}
-        <div className="text-center text-white px-4 max-w-4xl">
+        <div className="text-center text-white px-4 max-w-4xl z-30">
           <span className="block text-brand-gold tracking-[0.6em] uppercase text-[9px] md:text-[10px] mb-6 font-bold opacity-80">
             Defining the Standard of Canine Luxury
           </span>
@@ -69,14 +79,20 @@ const HeroSlider = () => {
           </h1>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-            <button className="group relative px-12 py-5 overflow-hidden bg-brand-terracotta text-white text-[10px] uppercase tracking-[0.3em] font-bold transition-all shadow-lg">
+            <Link 
+              to="/puppies" 
+              className="group relative px-12 py-5 overflow-hidden bg-brand-terracotta text-white text-[10px] uppercase tracking-[0.3em] font-bold transition-all shadow-lg inline-block text-center"
+            >
               <span className="relative z-10">View Available Puppies</span>
               <div className="absolute inset-0 bg-brand-gold translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-            </button>
+            </Link>
             
-            <button className="px-12 py-5 border border-white/10 hover:border-brand-gold text-white text-[10px] uppercase tracking-[0.3em] transition-all bg-white/5 backdrop-blur-sm">
+            <Link 
+              to="/our-story" 
+              className="px-12 py-5 border border-white/10 hover:border-brand-gold text-white text-[10px] uppercase tracking-[0.3em] transition-all bg-white/5 backdrop-blur-sm inline-block text-center"
+            >
               Our Breeding Legacy
-            </button>
+            </Link>
           </div>
         </div>
       </div>
