@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // 1. Importation des composants
 import Header from './components/Header'; 
-import Footer from './components/Footer'; // Import du nouveau footer avec WhatsApp
+import Footer from './components/Footer'; 
+import ScrollToTop from './components/ScrollToTop'; // Ajout du composant ScrollToTop
 
 // 2. Importation des pages
 import Home from './pages/Home';
@@ -15,6 +16,11 @@ import Contact from './pages/Contact';
 function App() {
   return (
     <Router>
+      {/* Le composant ScrollToTop doit être à l'intérieur du Router 
+          mais à l'extérieur des Routes pour surveiller chaque changement d'URL.
+      */}
+      <ScrollToTop />
+
       <div className="min-h-screen bg-white selection:bg-brand-gold selection:text-white flex flex-col">
         
         {/* Header global */}
@@ -37,7 +43,6 @@ function App() {
 
              {/* Route pour le contact */}
             <Route path="/contact" element={<Contact />} />
-
           </Routes>
         </main>
 
