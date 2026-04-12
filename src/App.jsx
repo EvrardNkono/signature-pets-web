@@ -4,49 +4,51 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // 1. Importation des composants
 import Header from './components/Header'; 
 import Footer from './components/Footer'; 
-import ScrollToTop from './components/ScrollToTop'; // Ajout du composant ScrollToTop
+import ScrollToTop from './components/ScrollToTop'; 
 
 // 2. Importation des pages
 import Home from './pages/Home';
 import Puppies from './pages/Puppies'; 
-import Breed from './pages/Breed'; 
+import BreedDetail from './pages/BreedDetail'; 
+import AboutUs from './pages/AboutUs'; 
 import OurStory from './pages/OurStory'; 
 import Contact from './pages/Contact';
+
+// --- AJOUT DES NOUVELLES PAGES ---
+import HealthWellness from './pages/HealthWellness'; 
+import AKCBenefits from './pages/AKCBenefits';
 
 function App() {
   return (
     <Router>
-      {/* Le composant ScrollToTop doit être à l'intérieur du Router 
-          mais à l'extérieur des Routes pour surveiller chaque changement d'URL.
-      */}
       <ScrollToTop />
 
-      <div className="min-h-screen bg-white selection:bg-brand-gold selection:text-white flex flex-col">
+      {/* La sélection personnalisée utilise tes couleurs de charte */}
+      <div className="min-h-screen bg-white selection:bg-brand-terracotta selection:text-white flex flex-col">
         
-        {/* Header global */}
         <Header /> 
 
-        {/* Contenu principal : le flex-grow assure que le footer reste en bas */}
         <main className="flex-grow">
           <Routes>
-            {/* Route pour la page d'accueil */}
             <Route path="/" element={<Home />} />
             
-            {/* Route pour la liste des chiots */}
             <Route path="/puppies" element={<Puppies />} />
 
-            {/* Route pour la page de la race */}
-            <Route path="/breed" element={<Breed />} />
+            {/* Route dynamique pour les races */}
+            <Route path="/breed/:breedName" element={<BreedDetail />} />
 
-            {/* Route pour l'histoire de l'élevage */}
+            {/* Section Héritage */}
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/our-story" element={<OurStory />} />
 
-             {/* Route pour le contact */}
+            {/* --- NOUVELLES ROUTES SANTÉ & AKC --- */}
+            <Route path="/health" element={<HealthWellness />} />
+            <Route path="/akc-benefits" element={<AKCBenefits />} />
+
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </main>
 
-        {/* Le nouveau Footer avec design Premium et redirection WhatsApp */}
         <Footer />
         
       </div>

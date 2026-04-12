@@ -95,49 +95,92 @@ const FeaturedPuppies = () => {
         </Link>
       </div>
 
-      {/* Grid Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-        {puppies.map((puppy) => (
-          <div key={puppy.id} className="group cursor-pointer">
-            <div className="relative overflow-hidden aspect-[4/5] mb-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] bg-gray-100">
-              <img 
-                src={puppy.img} 
-                alt={puppy.name} 
-                loading="lazy"
-                className="h-full w-full object-cover object-center group-hover:scale-110 transition-transform duration-[1.5s] ease-out" 
-              />
-              <div className={`absolute top-6 left-6 px-4 py-1.5 text-[8px] font-bold uppercase tracking-[0.2em] backdrop-blur-md shadow-lg z-20
-                ${puppy.status === 'Available' ? 'bg-brand-dark/90 text-brand-gold' : 
-                  puppy.status === 'Reserved' ? 'bg-brand-terracotta text-white' : 
-                  'bg-gray-500/90 text-white'}`}>
-                {puppy.status}
-              </div>
-            </div>
+     {/* Grid Section */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24">
+  {puppies.map((puppy) => (
+    <div key={puppy.id} className="group relative flex flex-col" onClick={() => setSelectedPuppy(puppy)}>
+      
+      {/* Container Image avec Effet de Cadre Décalé */}
+      <div className="relative mb-10">
+        <div className="relative overflow-hidden aspect-[4/5] z-10 shadow-2xl">
+          <img 
+            src={puppy.img} 
+            alt={puppy.name} 
+            loading="lazy"
+            className="h-full w-full object-cover transform group-hover:scale-110 transition-transform duration-[2s] ease-out" 
+          />
+          
+          {/* Overlay Signature au survol */}
+          <div className="absolute inset-0 bg-brand-dark/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex items-center justify-center z-20">
+             <div className="border border-white/30 p-4 backdrop-blur-[2px]">
+                <span className="text-white text-[8px] uppercase tracking-[0.6em] font-light">View Pedigree</span>
+             </div>
+          </div>
+        </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-baseline">
-                <h3 className="text-3xl font-serif text-brand-dark group-hover:text-brand-terracotta transition-colors duration-500">
-                  {puppy.name}
-                </h3>
-                <span className="text-brand-terracotta font-serif italic text-xl">${puppy.price}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <p className="text-gray-400 text-[9px] uppercase tracking-[0.2em] font-bold">{puppy.breed}</p>
-                <span className="w-1 h-1 bg-brand-gold rounded-full"></span>
-                <p className="text-gray-400 text-[9px] uppercase tracking-[0.2em] font-bold">{puppy.gender} • {puppy.age}</p>
-              </div>
-              <div className="pt-4">
-                <button 
-                  onClick={() => setSelectedPuppy(puppy)}
-                  className="w-full py-4 border border-gray-100 text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-brand-dark hover:text-white transition-all duration-500"
-                >
-                  View Details
-                </button>
-              </div>
+        {/* Cadre décoratif Terracotta & Gold en arrière-plan (se révèle au hover) */}
+        <div className="absolute -bottom-3 -right-3 w-full h-full border border-brand-gold/20 z-0 transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2"></div>
+        
+        {/* Status Badge - Flottant et Impérial */}
+        <div className="absolute -top-4 right-6 z-30 shadow-xl">
+           <div className={`px-5 py-2 text-[8px] font-black uppercase tracking-[0.4em] 
+            ${puppy.status === 'Available' ? 'bg-brand-dark text-brand-gold border-b-2 border-brand-gold' : 
+              puppy.status === 'Reserved' ? 'bg-brand-terracotta text-white border-b-2 border-white/20' : 
+              'bg-gray-500 text-white'}`}>
+            {puppy.status}
+          </div>
+        </div>
+      </div>
+
+      {/* Détails de la carte avec plus de caractère */}
+      <div className="space-y-6 relative z-10 px-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-4xl font-serif text-brand-dark leading-none mb-1">
+                {puppy.name}
+              </h3>
+              <p className="text-brand-gold text-[9px] uppercase tracking-[0.4em] font-bold italic">
+                {puppy.breed}
+              </p>
+            </div>
+            <div className="text-right">
+               <span className="block text-brand-terracotta font-serif text-2xl tracking-tighter">${puppy.price}</span>
+               <span className="block text-[7px] text-gray-400 uppercase tracking-widest italic">Full Investment</span>
             </div>
           </div>
-        ))}
+          
+          <div className="flex items-center gap-4 pt-4 border-t border-brand-gold/10">
+            <div className="flex flex-col">
+                <span className="text-[7px] text-gray-400 uppercase tracking-widest">Gender</span>
+                <span className="text-[10px] text-brand-dark font-bold uppercase tracking-tighter">{puppy.gender}</span>
+            </div>
+            <div className="w-px h-6 bg-brand-gold/20"></div>
+            <div className="flex flex-col">
+                <span className="text-[7px] text-gray-400 uppercase tracking-widest">Age</span>
+                <span className="text-[10px] text-brand-dark font-bold uppercase tracking-tighter">{puppy.age}</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bouton "Couture" avec plus de poids */}
+        <button 
+          className="group/btn relative w-full h-14 bg-transparent border border-brand-dark overflow-hidden transition-all duration-500"
+        >
+          {/* Fond qui se remplit de Terracotta ou Dark selon ton envie */}
+          <div className="absolute inset-0 bg-brand-dark translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500 ease-out"></div>
+          
+          <div className="relative z-10 flex items-center justify-center gap-3">
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-brand-dark group-hover/btn:text-white transition-colors duration-500">
+              Inquire Now
+            </span>
+            <div className="w-4 h-[1px] bg-brand-dark group-hover/btn:bg-brand-gold transition-colors duration-500"></div>
+          </div>
+        </button>
       </div>
+    </div>
+  ))}
+</div>
 
       {/* --- MODAL --- */}
       {selectedPuppy && (
