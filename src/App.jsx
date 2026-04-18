@@ -13,17 +13,17 @@ import BreedDetail from './pages/BreedDetail';
 import AboutUs from './pages/AboutUs'; 
 import OurStory from './pages/OurStory'; 
 import Contact from './pages/Contact';
-
-// --- AJOUT DES NOUVELLES PAGES ---
 import HealthWellness from './pages/HealthWellness'; 
 import AKCBenefits from './pages/AKCBenefits';
+
+// --- AJOUT DE LA PAGE DASHBOARD ---
+import Dashboard from './pages/Dashboard'; // Assure-toi que le fichier est bien dans /pages
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
 
-      {/* La sélection personnalisée utilise tes couleurs de charte */}
       <div className="min-h-screen bg-white selection:bg-brand-terracotta selection:text-white flex flex-col">
         
         <Header /> 
@@ -31,7 +31,6 @@ function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            
             <Route path="/puppies" element={<Puppies />} />
 
             {/* Route dynamique pour les races */}
@@ -41,11 +40,15 @@ function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/our-story" element={<OurStory />} />
 
-            {/* --- NOUVELLES ROUTES SANTÉ & AKC --- */}
+            {/* Nouvelles routes Santé & AKC */}
             <Route path="/health" element={<HealthWellness />} />
             <Route path="/akc-benefits" element={<AKCBenefits />} />
 
             <Route path="/contact" element={<Contact />} />
+
+            {/* --- NOUVELLE ROUTE DASHBOARD --- */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            
           </Routes>
         </main>
 
