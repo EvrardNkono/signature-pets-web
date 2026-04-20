@@ -71,7 +71,7 @@ const Header = () => {
 
         {/* Navigation Desktop */}
         <nav className="hidden lg:flex items-center gap-8">
-          <Link to="/puppies" className="text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:text-[#D4AF37] transition-colors">Available Breeds</Link>
+          <Link to="/puppies" className="text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:text-[#D4AF37] transition-colors">Breeds Available</Link>
 
           {/* ACCORDÉON RACES (DYNAMIQUE) */}
           <div className="relative" onMouseEnter={() => setOpenAccordion('breeds')} onMouseLeave={() => setOpenAccordion(null)}>
@@ -146,7 +146,7 @@ const Header = () => {
         {/* Mobile Menu Overlay */}
         <div className={`fixed inset-0 bg-[#1a1008] transition-all duration-500 z-[105] ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 invisible'}`}>
           <div className="flex flex-col pt-32 px-10 gap-8 h-full overflow-y-auto pb-20">
-            <Link to="/puppies" onClick={() => setIsMenuOpen(false)} className="text-white text-2xl font-serif italic tracking-widest border-b border-white/5 pb-4">Available Breeds</Link>
+            <Link to="/puppies" onClick={() => setIsMenuOpen(false)} className="text-white text-2xl font-serif italic tracking-widest border-b border-white/5 pb-4">Breeds Available</Link>
             {/* ... ton menu mobile reste identique ... */}
             <div className="flex flex-col">
               <button onClick={() => toggleAccordion('breeds')} className="flex justify-between items-center text-white text-2xl font-serif italic tracking-widest border-b border-white/5 pb-4">

@@ -146,7 +146,7 @@ const BreedDetail = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
             <div>
-              <h2 className="text-5xl font-serif italic text-brand-dark mb-4">Available Breeds</h2>
+              <h2 className="text-5xl font-serif italic text-brand-dark mb-4">Breeds Available</h2>
               <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">
                 {filteredPuppies.length} companions ready for home
               </p>
