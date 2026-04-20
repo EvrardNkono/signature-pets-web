@@ -171,7 +171,7 @@ export default function SignaturePetsDashboard() {
       <main className="flex-1 overflow-y-auto relative pb-20">
         <header className="px-6 py-6 md:h-24 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between sticky top-0 bg-[#FAF6F0]/80 backdrop-blur-xl z-40 border-b border-[#F2EBE0] gap-4">
           <h2 className="font-['Playfair_Display'] text-2xl md:text-3xl font-black capitalize">
-            {view === "dogs" ? "Puppy Inventory" : "Breed Library"}
+            {view === "dogs" ? "Breed Inventory" : "Breed Library"}
           </h2>
           <button 
             onClick={() => { setCurrent(view === "dogs" ? EMPTY_DOG : EMPTY_BREED); setModal("form"); }}
