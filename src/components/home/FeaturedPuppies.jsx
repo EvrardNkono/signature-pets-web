@@ -8,11 +8,19 @@ const FeaturedPuppies = () => {
   const [selectedPuppy, setSelectedPuppy] = useState(null);
   const phoneNumber = "13375671208";
 
+  // --- CONFIGURATION DYNAMIQUE ---
+  // Détecte si on est en local ou sur le web (Vercel)
+  const isLocal = window.location.hostname === 'localhost';
+  const API_BASE_URL = isLocal 
+    ? 'http://localhost:5000' 
+    : 'https://backpets.vercel.app';
+
   useEffect(() => {
     const fetchFeaturedPuppies = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/v1/puppies');
+        // Utilisation de l'URL dynamique
+        const response = await axios.get(`${API_BASE_URL}/api/v1/puppies`);
         if (response.data.success) {
           let allPuppies = response.data.data;
           // Mélange aléatoire pour la section vedette
@@ -27,7 +35,7 @@ const FeaturedPuppies = () => {
       }
     };
     fetchFeaturedPuppies();
-  }, []);
+  }, [API_BASE_URL]);
 
   const handleWhatsAppBuy = (puppy) => {
     const displayPrice = puppy.price ? puppy.price.toLocaleString() : "Contact Us";
@@ -37,8 +45,8 @@ const FeaturedPuppies = () => {
   };
 
   /**
-   * Logique d'image alignée sur ton PuppyCard :
-   * On cherche d'abord dans le tableau 'images', sinon on tente le champ 'image'
+   * Logique d'image dynamique :
+   * Préfixe avec l'URL de base si le chemin est relatif.
    */
   const getImageUrl = (puppy) => {
     let path = null;
@@ -51,7 +59,7 @@ const FeaturedPuppies = () => {
 
     if (!path) return 'https://via.placeholder.com/600x800?text=Signature+Pets';
     
-    return path.startsWith('http') ? path : `http://localhost:5000/${path}`;
+    return path.startsWith('http') ? path : `${API_BASE_URL}/${path}`;
   };
 
   if (loading) {
