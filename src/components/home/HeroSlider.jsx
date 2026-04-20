@@ -83,7 +83,7 @@ const HeroSlider = () => {
               to="/puppies" 
               className="group relative px-12 py-5 overflow-hidden bg-brand-terracotta text-white text-[10px] uppercase tracking-[0.3em] font-bold transition-all shadow-lg inline-block text-center"
             >
-              <span className="relative z-10">View Available Puppies</span>
+              <span className="relative z-10">View Available Breeds</span>
               <div className="absolute inset-0 bg-brand-gold translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
             </Link>
             

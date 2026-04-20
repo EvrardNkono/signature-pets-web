@@ -71,12 +71,12 @@ const Header = () => {
 
         {/* Navigation Desktop */}
         <nav className="hidden lg:flex items-center gap-8">
-          <Link to="/puppies" className="text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:text-[#D4AF37] transition-colors">Available Puppies</Link>
+          <Link to="/puppies" className="text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:text-[#D4AF37] transition-colors">Available Breeds</Link>
 
           {/* ACCORDÉON RACES (DYNAMIQUE) */}
           <div className="relative" onMouseEnter={() => setOpenAccordion('breeds')} onMouseLeave={() => setOpenAccordion(null)}>
             <button className="flex items-center gap-2 text-white text-[10px] uppercase tracking-[0.3em] font-bold outline-none">
-              The Breeds <span className={`transition-transform duration-300 ${openAccordion === 'breeds' ? 'rotate-180 text-[#D4AF37]' : ''}`}>▾</span>
+              Breeds <span className={`transition-transform duration-300 ${openAccordion === 'breeds' ? 'rotate-180 text-[#D4AF37]' : ''}`}>▾</span>
             </button>
             <div className={`absolute top-full left-0 mt-4 w-56 bg-[#1a1008] border border-[#D4AF37]/20 shadow-2xl transition-all duration-300 ${openAccordion === 'breeds' ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
               {signatureBreeds.length > 0 ? (
@@ -146,11 +146,11 @@ const Header = () => {
         {/* Mobile Menu Overlay */}
         <div className={`fixed inset-0 bg-[#1a1008] transition-all duration-500 z-[105] ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 invisible'}`}>
           <div className="flex flex-col pt-32 px-10 gap-8 h-full overflow-y-auto pb-20">
-            <Link to="/puppies" onClick={() => setIsMenuOpen(false)} className="text-white text-2xl font-serif italic tracking-widest border-b border-white/5 pb-4">Available Puppies</Link>
+            <Link to="/puppies" onClick={() => setIsMenuOpen(false)} className="text-white text-2xl font-serif italic tracking-widest border-b border-white/5 pb-4">Available Breeds</Link>
             {/* ... ton menu mobile reste identique ... */}
             <div className="flex flex-col">
               <button onClick={() => toggleAccordion('breeds')} className="flex justify-between items-center text-white text-2xl font-serif italic tracking-widest border-b border-white/5 pb-4">
-                The Breeds <span className={`text-[#D4AF37] transition-transform duration-300 ${openAccordion === 'breeds' ? 'rotate-180' : ''}`}>▾</span>
+                Breeds <span className={`text-[#D4AF37] transition-transform duration-300 ${openAccordion === 'breeds' ? 'rotate-180' : ''}`}>▾</span>
               </button>
               <div className={`grid transition-all duration-500 ease-in-out ${openAccordion === 'breeds' ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0'}`}>
                 <div className="overflow-hidden flex flex-col gap-4 pl-4 border-l border-[#D4AF37]/20">

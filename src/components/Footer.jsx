@@ -51,8 +51,8 @@ const Footer = () => {
           <div className="space-y-6">
             <h4 className="text-brand-gold text-[10px] uppercase tracking-[0.4em] font-bold">Navigation</h4>
             <ul className="space-y-4">
-              <li><Link to="/puppies" className="text-white/60 text-[10px] uppercase tracking-widest hover:text-brand-gold transition-colors">Available Puppies</Link></li>
-              <li><Link to="/breed" className="text-white/60 text-[10px] uppercase tracking-widest hover:text-brand-gold transition-colors">The Breed Standard</Link></li>
+              <li><Link to="/puppies" className="text-white/60 text-[10px] uppercase tracking-widest hover:text-brand-gold transition-colors">Available breeds</Link></li>
+              <li><Link to="/breed" className="text-white/60 text-[10px] uppercase tracking-widest hover:text-brand-gold transition-colors">Breed Standard</Link></li>
               <li><Link to="/our-story" className="text-white/60 text-[10px] uppercase tracking-widest hover:text-brand-gold transition-colors">Our Heritage</Link></li>
             </ul>
           </div>
