@@ -192,7 +192,7 @@ const FeaturedPuppies = () => {
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                {selectedPuppy.status === 'Available' ? `Inquire to Adopt ${selectedPuppy.name}` : 'Reserved'}
+                {selectedPuppy.status === 'Available' ? `Inquire to Buy ${selectedPuppy.name}` : 'Reserved'}
               </button>
             </div>
           </div>
