@@ -2,14 +2,14 @@ import React from 'react';
 import HeroSlider from '../components/home/HeroSlider';
 import FeaturedPuppies from '../components/home/FeaturedPuppies';
 import TrustBar from '../components/home/TrustBar';
+import ReviewSlider from '../components/ReviewSlider';
 
 const Home = () => {
   return (
-    // On s'assure que le main est bien positionné
     <main className="relative overflow-x-hidden">
       {/* Le HeroSlider doit être en haut. 
-        Si le slider utilise des images en 'absolute', 
-        vérifie qu'il a bien une hauteur définie (ex: h-screen ou h-[600px])
+          Si le slider utilise des images en 'absolute', 
+          vérifie qu'il a bien une hauteur définie (ex: h-screen ou h-[600px])
       */}
       <section className="relative w-full">
         <HeroSlider />
@@ -35,6 +35,23 @@ const Home = () => {
       </section>
 
       <FeaturedPuppies />
+
+      {/* --- Section Témoignages / Avis Client --- */}
+      <section className="py-24 bg-white border-t border-gray-50">
+        <div className="max-w-6xl mx-auto px-8">
+          <div className="text-center mb-20">
+            <span className="text-brand-gold tracking-[0.4em] uppercase text-[10px] font-bold mb-4 block">
+              Testimonials
+            </span>
+            <h2 className="text-4xl md:text-5xl font-serif text-brand-dark italic">
+              Voices of our <span className="text-brand-terracotta">Community</span>
+            </h2>
+            <div className="mt-6 w-12 h-[1px] bg-brand-gold/40 mx-auto"></div>
+          </div>
+          
+          <ReviewSlider />
+        </div>
+      </section>
 
       <div className="pb-20 bg-white"></div>
     </main>
