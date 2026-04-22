@@ -16,6 +16,7 @@ import Contact from './pages/Contact';
 import HealthWellness from './pages/HealthWellness'; 
 import AKCBenefits from './pages/AKCBenefits';
 import Dashboard from './pages/Dashboard';
+import ReviewsPage from './pages/ReviewsPage'; // <-- Import de ta nouvelle page
 
 // Composant interne pour gérer l'affichage conditionnel
 function LayoutWrapper({ children }) {
@@ -51,6 +52,9 @@ function App() {
 
           {/* Route dynamique pour les races */}
           <Route path="/breed/:breedName" element={<BreedDetail />} />
+
+          {/* Route pour les témoignages clients */}
+          <Route path="/reviews" element={<ReviewsPage />} />
 
           {/* Section Héritage */}
           <Route path="/about" element={<AboutUs />} />
