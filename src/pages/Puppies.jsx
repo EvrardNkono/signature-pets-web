@@ -33,12 +33,8 @@ const Puppies = () => {
     fetchPuppies();
   }, []);
 
-  // --- NOUVELLE LOGIQUE POUR LE LIVE CHAT ---
   const handleInquiry = (puppy) => {
-    // 1. Fermer la modal locale
     setSelectedPuppy(null);
-
-    // 2. Déclencher le Live Chat
     const chatEvent = new CustomEvent('openSignatureChat', {
       detail: {
         mode: 'ADOPTION',
@@ -47,7 +43,6 @@ const Puppies = () => {
         message: `Hello, I am interested in ${puppy.name}, the ${puppy.breed}. Is this companion still available?`
       }
     });
-
     window.dispatchEvent(chatEvent);
   };
 
@@ -127,8 +122,9 @@ const Puppies = () => {
                 <p className="text-[10px] text-gray-400 tracking-[0.2em] uppercase mb-4">
                   {puppy.breed} • {puppy.gender}
                 </p>
+                {/* CHANGEMENT : $ AU LIEU DE € + Formatage US */}
                 <div className="text-lg font-light text-[#D4AF37]">
-                  {puppy.price?.toLocaleString() || "Price on request"} €
+                  {puppy.price ? `$${puppy.price.toLocaleString('en-US')}` : "Price on request"}
                 </div>
               </div>
             </div>
@@ -165,8 +161,9 @@ const Puppies = () => {
               <div className="mb-8">
                 <span className="text-[#D4AF37] text-[10px] tracking-[0.3em] uppercase mb-2 block">Premium Companion</span>
                 <h2 className="text-4xl font-serif italic text-gray-900 mb-2">{selectedPuppy.name}</h2>
+                {/* CHANGEMENT : $ AU LIEU DE € + Formatage US */}
                 <p className="text-2xl font-light text-gray-400">
-                   {selectedPuppy.price?.toLocaleString() || "Contact Us"} €
+                   {selectedPuppy.price ? `$${selectedPuppy.price.toLocaleString('en-US')}` : "Contact Us"}
                 </p>
               </div>
               
@@ -193,7 +190,6 @@ const Puppies = () => {
                 {selectedPuppy.description ? `"${selectedPuppy.description}"` : "This exceptional companion is waiting for its forever home."}
               </p>
 
-              {/* BOUTON MODIFIÉ POUR LE LIVE CHAT */}
               <button 
                 onClick={() => handleInquiry(selectedPuppy)}
                 className="mt-auto group flex items-center justify-center gap-3 bg-gray-900 text-white py-5 rounded-xl text-[10px] tracking-[0.3em] uppercase hover:bg-gray-800 transition-all shadow-lg shadow-gray-200"
