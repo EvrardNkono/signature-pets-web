@@ -6,10 +6,8 @@ const FeaturedPuppies = () => {
   const [puppies, setPuppies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPuppy, setSelectedPuppy] = useState(null);
-  const phoneNumber = "13375671208";
 
   // --- CONFIGURATION DYNAMIQUE ---
-  // Détecte si on est en local ou sur le web (Vercel)
   const isLocal = window.location.hostname === 'localhost';
   const API_BASE_URL = isLocal 
     ? 'http://localhost:5000' 
@@ -19,11 +17,9 @@ const FeaturedPuppies = () => {
     const fetchFeaturedPuppies = async () => {
       try {
         setLoading(true);
-        // Utilisation de l'URL dynamique
         const response = await axios.get(`${API_BASE_URL}/api/v1/puppies`);
         if (response.data.success) {
           let allPuppies = response.data.data;
-          // Mélange aléatoire pour la section vedette
           const shuffled = allPuppies.sort(() => 0.5 - Math.random());
           const featured = shuffled.slice(0, 15);
           setPuppies(featured);
@@ -37,28 +33,32 @@ const FeaturedPuppies = () => {
     fetchFeaturedPuppies();
   }, [API_BASE_URL]);
 
-  const handleWhatsAppBuy = (puppy) => {
-    const displayPrice = puppy.price ? puppy.price.toLocaleString() : "Contact Us";
-    const message = `Hello Signature Pets! I am interested in ${puppy.name}, the ${puppy.breed} featured on your homepage. Is ${puppy.gender} still available for $${displayPrice}?`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  // --- LOGIQUE DU LIVE CHAT (ADOPTION) ---
+  const handleInquiry = (puppy) => {
+    // 1. Fermer la modal locale
+    setSelectedPuppy(null);
+
+    // 2. Déclencher le Live Chat
+    const chatEvent = new CustomEvent('openSignatureChat', {
+      detail: {
+        mode: 'ADOPTION',
+        puppyName: puppy.name,
+        puppyImage: getImageUrl(puppy),
+        message: `Hello Signature Pets! I am interested in ${puppy.name}, the ${puppy.breed} featured on your homepage. Is this companion still available?`
+      }
+    });
+
+    window.dispatchEvent(chatEvent);
   };
 
-  /**
-   * Logique d'image dynamique :
-   * Préfixe avec l'URL de base si le chemin est relatif.
-   */
   const getImageUrl = (puppy) => {
     let path = null;
-    
     if (puppy.images && puppy.images.length > 0) {
       path = puppy.images[0];
     } else if (puppy.image) {
       path = puppy.image;
     }
-
     if (!path) return 'https://via.placeholder.com/600x800?text=Signature+Pets';
-    
     return path.startsWith('http') ? path : `${API_BASE_URL}/${path}`;
   };
 
@@ -183,8 +183,10 @@ const FeaturedPuppies = () => {
               <p className="text-gray-500 font-light leading-relaxed mb-8 text-sm italic">
                 {selectedPuppy.description || "Raising standard of excellence for your future companion."}
               </p>
+              
+              {/* BOUTON MODIFIÉ POUR LE LIVE CHAT */}
               <button 
-                onClick={() => handleWhatsAppBuy(selectedPuppy)}
+                onClick={() => handleInquiry(selectedPuppy)}
                 disabled={selectedPuppy.status !== 'Available'}
                 className={`w-full py-5 text-[10px] uppercase tracking-[0.4em] font-bold transition-all shadow-xl ${
                   selectedPuppy.status === 'Available' 

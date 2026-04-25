@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Header from './components/Header'; 
 import Footer from './components/Footer'; 
 import ScrollToTop from './components/ScrollToTop'; 
+import LiveChat from './components/LiveChat'; // <-- Import de ton nouveau composant
 
 // 2. Importation des pages
 import Home from './pages/Home';
@@ -16,7 +17,7 @@ import Contact from './pages/Contact';
 import HealthWellness from './pages/HealthWellness'; 
 import AKCBenefits from './pages/AKCBenefits';
 import Dashboard from './pages/Dashboard';
-import ReviewsPage from './pages/ReviewsPage'; // <-- Import de ta nouvelle page
+import ReviewsPage from './pages/ReviewsPage';
 
 // Composant interne pour gérer l'affichage conditionnel
 function LayoutWrapper({ children }) {
@@ -33,6 +34,11 @@ function LayoutWrapper({ children }) {
       <main className="flex-grow">
         {children}
       </main>
+
+      {/* On affiche le LiveChat uniquement hors Dashboard 
+          pour garder une interface épurée lors de la gestion.
+      */}
+      {!isDashboard && <LiveChat />}
 
       {/* On n'affiche le Footer que si ce n'est PAS le dashboard */}
       {!isDashboard && <Footer />}
@@ -66,7 +72,7 @@ function App() {
 
           <Route path="/contact" element={<Contact />} />
 
-          {/* Route Dashboard (sans Header/Footer) */}
+          {/* Route Dashboard (sans Header/Footer/LiveChat) */}
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </LayoutWrapper>

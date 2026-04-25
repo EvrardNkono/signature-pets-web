@@ -4,7 +4,6 @@ const PuppyCard = ({ puppy }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // --- GESTION DU SCROLL ---
-  // Bloque le scroll du body quand la modal est ouverte
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -19,14 +18,27 @@ const PuppyCard = ({ puppy }) => {
     ? puppy.images[0] 
     : 'https://via.placeholder.com/600x800?text=Signature+Pets';
 
-  // Configuration WhatsApp
-  const phoneNumber = "13375671208";
-  
   // Sécurité prix
   const displayPrice = puppy.price ? puppy.price.toLocaleString() : "Contact Us";
-  
-  const message = `Hello Signature Pets, I am interested in ${puppy.name}, the ${puppy.gender} ${puppy.breed} priced at $${displayPrice}. Is this puppy still available?`;
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+  // --- DÉCLENCHEUR DU LIVE CHAT ---
+  const handleApplyForAdoption = () => {
+    // 1. On ferme la modal de détails
+    setIsOpen(false);
+
+    // 2. On crée l'événement personnalisé pour le LiveChat
+    const chatEvent = new CustomEvent('openSignatureChat', {
+      detail: {
+        mode: 'ADOPTION',
+        puppyName: puppy.name,
+        puppyImage: mainImage,
+        message: `Hello, I am interested in ${puppy.name} (${puppy.breed}). Is this puppy still available?`
+      }
+    });
+
+    // 3. On déclenche l'événement globalement
+    window.dispatchEvent(chatEvent);
+  };
 
   return (
     <>
@@ -61,7 +73,6 @@ const PuppyCard = ({ puppy }) => {
       {/* --- MODAL DE PRESTIGE --- */}
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-          {/* Overlay avec effet flou */}
           <div 
             className="absolute inset-0 bg-[#1a1008]/95 backdrop-blur-md transition-opacity duration-500"
             onClick={() => setIsOpen(false)}
@@ -69,7 +80,6 @@ const PuppyCard = ({ puppy }) => {
 
           <div className="relative bg-white w-full max-w-6xl max-h-[95vh] overflow-y-auto md:overflow-hidden grid grid-cols-1 md:grid-cols-2 shadow-2xl animate-in zoom-in-95 duration-500">
             
-            {/* Bouton de fermeture flottant */}
             <button 
               onClick={() => setIsOpen(false)}
               className="absolute top-6 right-6 z-50 text-[#1a1008] hover:rotate-90 hover:text-[#D4AF37] transition-all duration-300 bg-white/80 p-2 rounded-full shadow-lg"
@@ -79,18 +89,15 @@ const PuppyCard = ({ puppy }) => {
               </svg>
             </button>
 
-            {/* Partie Gauche : Image de Prestige */}
             <div className="relative h-[400px] md:h-full bg-[#1a1008]">
               <img 
                 src={mainImage} 
                 alt={puppy.name} 
                 className="w-full h-full object-cover opacity-90"
               />
-              {/* Cadre décoratif interne */}
               <div className="absolute inset-0 border-[15px] border-white/10 m-4 pointer-events-none"></div>
             </div>
 
-            {/* Partie Droite : Contenu Signature */}
             <div className="p-8 md:p-16 flex flex-col justify-center bg-[#FAF9F6]">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-[#D4AF37] tracking-[0.4em] uppercase text-[10px] font-bold">Signature Selection</span>
@@ -127,15 +134,14 @@ const PuppyCard = ({ puppy }) => {
                 </p>
               </div>
 
+              {/* BOUTON MODIFIÉ POUR LE LIVE CHAT */}
               <div className="flex flex-col gap-4">
-                <a 
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button 
+                  onClick={handleApplyForAdoption}
                   className="w-full bg-[#1a1008] text-white text-[10px] uppercase tracking-[0.4em] font-bold py-5 text-center hover:bg-[#D4AF37] hover:text-[#1a1008] transition-all duration-500 shadow-xl"
                 >
                   Apply for Adoption
-                </a>
+                </button>
               </div>
             </div>
           </div>

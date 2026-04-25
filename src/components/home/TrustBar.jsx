@@ -56,7 +56,7 @@ const TrustBar = () => {
         {/* Imposing Header */}
         <div className="text-center mb-24">
             <h2 className="text-brand-gold font-serif italic text-sm tracking-[0.5em] uppercase mb-4">The Signature Commitment</h2>
-            <h3 className="text-4xl md:text-5xl font-serif text-white mb-8 italic">Ethically Bred. Professionally Socialized.</h3>
+            <h3 className="text-4xl md:text-5xl font-serif text-white mb-8 italic">Ethical Breeding. Professional Socialization.</h3>
             <div className="w-24 h-[1px] bg-brand-gold/40 mx-auto mb-8"></div>
             <p className="text-gray-400 text-xs uppercase tracking-[0.2em] max-w-2xl mx-auto leading-relaxed">
              At SignaturePets, we believe that adopting a puppy is far more than just a transaction; it is the beginning of a unique story. Our mission is to create memorable encounters between passionate families and exceptional companions

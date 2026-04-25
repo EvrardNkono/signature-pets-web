@@ -16,9 +16,6 @@ const Puppies = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [selectedPuppy, setSelectedPuppy] = useState(null);
 
-  // Numéro WhatsApp (Format international sans le + pour le lien)
-  const phoneNumber = "13375671208";
-
   useEffect(() => {
     const fetchPuppies = async () => {
       try {
@@ -35,6 +32,24 @@ const Puppies = () => {
     };
     fetchPuppies();
   }, []);
+
+  // --- NOUVELLE LOGIQUE POUR LE LIVE CHAT ---
+  const handleInquiry = (puppy) => {
+    // 1. Fermer la modal locale
+    setSelectedPuppy(null);
+
+    // 2. Déclencher le Live Chat
+    const chatEvent = new CustomEvent('openSignatureChat', {
+      detail: {
+        mode: 'ADOPTION',
+        puppyName: puppy.name,
+        puppyImage: puppy.images?.[0] || 'https://via.placeholder.com/600x800',
+        message: `Hello, I am interested in ${puppy.name}, the ${puppy.breed}. Is this companion still available?`
+      }
+    });
+
+    window.dispatchEvent(chatEvent);
+  };
 
   if (loading) {
     return (
@@ -89,22 +104,17 @@ const Puppies = () => {
               className="group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer"
               onClick={() => setSelectedPuppy(puppy)}
             >
-              {/* IMAGE CONTAINER */}
               <div className="relative aspect-[4/5] overflow-hidden bg-gray-50">
                 <img 
                   src={puppy.images?.[0] || 'https://via.placeholder.com/600x800?text=Signature+Pets'} 
                   alt={puppy.name}
                   className="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-110"
                 />
-                
-                {/* OVERLAY AU SURVOL */}
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
                    <span className="bg-white/90 backdrop-blur px-6 py-3 text-[10px] tracking-[0.2em] uppercase font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                      Discover {puppy.name}
                    </span>
                 </div>
-
-                {/* BADGE STATUS */}
                 {puppy.status !== 'Available' && (
                   <div className="absolute top-6 left-6 bg-black/80 text-white px-4 py-1 text-[9px] tracking-widest uppercase rounded-full">
                     {puppy.status}
@@ -112,7 +122,6 @@ const Puppies = () => {
                 )}
               </div>
 
-              {/* INFO CONTAINER */}
               <div className="p-8 flex flex-col items-center text-center">
                 <h3 className="text-2xl font-serif italic mb-2 text-gray-800">{puppy.name}</h3>
                 <p className="text-[10px] text-gray-400 tracking-[0.2em] uppercase mb-4">
@@ -156,7 +165,9 @@ const Puppies = () => {
               <div className="mb-8">
                 <span className="text-[#D4AF37] text-[10px] tracking-[0.3em] uppercase mb-2 block">Premium Companion</span>
                 <h2 className="text-4xl font-serif italic text-gray-900 mb-2">{selectedPuppy.name}</h2>
-                <p className="text-2xl font-light text-gray-400">{selectedPuppy.price} €</p>
+                <p className="text-2xl font-light text-gray-400">
+                   {selectedPuppy.price?.toLocaleString() || "Contact Us"} €
+                </p>
               </div>
               
               <div className="grid grid-cols-2 gap-6 mb-8 py-8 border-y border-gray-100">
@@ -182,15 +193,14 @@ const Puppies = () => {
                 {selectedPuppy.description ? `"${selectedPuppy.description}"` : "This exceptional companion is waiting for its forever home."}
               </p>
 
-              <a 
-                href={`https://wa.me/${phoneNumber}?text=Bonjour, je souhaite me renseigner sur le chiot ${selectedPuppy.name} (${selectedPuppy.breed})`}
-                target="_blank"
-                rel="noopener noreferrer"
+              {/* BOUTON MODIFIÉ POUR LE LIVE CHAT */}
+              <button 
+                onClick={() => handleInquiry(selectedPuppy)}
                 className="mt-auto group flex items-center justify-center gap-3 bg-gray-900 text-white py-5 rounded-xl text-[10px] tracking-[0.3em] uppercase hover:bg-gray-800 transition-all shadow-lg shadow-gray-200"
               >
                 Inquire now
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
-              </a>
+              </button>
             </div>
           </div>
         </div>
