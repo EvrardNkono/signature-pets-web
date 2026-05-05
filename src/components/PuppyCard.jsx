@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ImageCarousel from './home/ImageCarousel';
 
-const PuppyCard = ({ puppy }) => {
+const PuppyCard = ({ puppy, apiBaseUrl }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // --- GESTION DU SCROLL ---
@@ -13,9 +14,22 @@ const PuppyCard = ({ puppy }) => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  // Sécurité pour l'image
+  // --- FONCTION POUR RÉCUPÉRER TOUTES LES IMAGES ---
+  const getAllImages = () => {
+    if (puppy.images && puppy.images.length > 0) {
+      return puppy.images
+        .filter(img => img && img.trim() !== '')
+        .map(img => img.startsWith('http') ? img : `${apiBaseUrl}/${img}`);
+    }
+    if (puppy.image) {
+      return [puppy.image.startsWith('http') ? puppy.image : `${apiBaseUrl}/${puppy.image}`];
+    }
+    return ['https://via.placeholder.com/600x800?text=Signature+Pets'];
+  };
+
+  // Sécurité pour l'image principale
   const mainImage = puppy.images && puppy.images.length > 0 
-    ? puppy.images[0] 
+    ? (puppy.images[0].startsWith('http') ? puppy.images[0] : `${apiBaseUrl}/${puppy.images[0]}`)
     : 'https://via.placeholder.com/600x800?text=Signature+Pets';
 
   // Sécurité prix
@@ -23,10 +37,7 @@ const PuppyCard = ({ puppy }) => {
 
   // --- DÉCLENCHEUR DU LIVE CHAT ---
   const handleApplyForAdoption = () => {
-    // 1. On ferme la modal de détails
     setIsOpen(false);
-
-    // 2. On crée l'événement personnalisé pour le LiveChat
     const chatEvent = new CustomEvent('openSignatureChat', {
       detail: {
         mode: 'ADOPTION',
@@ -35,8 +46,6 @@ const PuppyCard = ({ puppy }) => {
         message: `Hello, I am interested in ${puppy.name} (${puppy.breed}). Is this puppy still available?`
       }
     });
-
-    // 3. On déclenche l'événement globalement
     window.dispatchEvent(chatEvent);
   };
 
@@ -55,6 +64,12 @@ const PuppyCard = ({ puppy }) => {
               {puppy.status}
             </div>
           )}
+          {/* Indicateur de galerie */}
+          {puppy.images && puppy.images.length > 1 && (
+            <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg z-10">
+              <span className="text-white text-[8px] font-bold">📸 {puppy.images.length} photos</span>
+            </div>
+          )}
         </div>
         
         <div className="p-8 text-center">
@@ -70,78 +85,97 @@ const PuppyCard = ({ puppy }) => {
         </div>
       </div>
 
-      {/* --- MODAL DE PRESTIGE --- */}
+      {/* --- MODAL AVEC CAROUSEL (COMME FEATUREDPUPPIES) --- */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-[#1a1008]/95 backdrop-blur-md transition-opacity duration-500"
             onClick={() => setIsOpen(false)}
           ></div>
-
-          <div className="relative bg-white w-full max-w-6xl max-h-[95vh] overflow-y-auto md:overflow-hidden grid grid-cols-1 md:grid-cols-2 shadow-2xl animate-in zoom-in-95 duration-500">
-            
+          
+          {/* Container principal avec scroll global sur mobile */}
+          <div className="relative bg-white w-full max-w-6xl rounded-2xl shadow-2xl overflow-y-auto max-h-[95vh] md:max-h-[90vh]">
             <button 
-              onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-6 z-50 text-[#1a1008] hover:rotate-90 hover:text-[#D4AF37] transition-all duration-300 bg-white/80 p-2 rounded-full shadow-lg"
+              onClick={() => setIsOpen(false)} 
+              className="sticky md:absolute top-4 right-4 z-30 text-[#1a1008] hover:text-[#D4AF37] text-2xl bg-white/90 rounded-full w-10 h-10 flex items-center justify-center shadow-lg ml-auto mr-4 mt-4 md:mt-0"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ✕
             </button>
-
-            <div className="relative h-[400px] md:h-full bg-[#1a1008]">
-              <img 
-                src={mainImage} 
-                alt={puppy.name} 
-                className="w-full h-full object-cover opacity-90"
-              />
-              <div className="absolute inset-0 border-[15px] border-white/10 m-4 pointer-events-none"></div>
-            </div>
-
-            <div className="p-8 md:p-16 flex flex-col justify-center bg-[#FAF9F6]">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-[#D4AF37] tracking-[0.4em] uppercase text-[10px] font-bold">Signature Selection</span>
-                <div className="h-[1px] flex-1 bg-[#D4AF37]/20"></div>
-              </div>
-
-              <h2 className="text-5xl md:text-7xl font-serif text-[#1a1008] italic mb-2">
-                {puppy.name}
-              </h2>
-              <p className="text-[#D4AF37] tracking-[0.2em] text-xs font-bold mb-8 uppercase">{puppy.breed}</p>
-
-              <div className="grid grid-cols-2 gap-8 mb-10 border-y border-[#D4AF37]/10 py-8">
-                <div>
-                  <span className="block text-[10px] uppercase tracking-widest text-gray-400 mb-1">Gender</span>
-                  <span className="text-lg font-serif italic text-[#1a1008]">{puppy.gender}</span>
-                </div>
-                <div>
-                  <span className="block text-[10px] uppercase tracking-widest text-gray-400 mb-1">Age</span>
-                  <span className="text-lg font-serif italic text-[#1a1008]">{puppy.age}</span>
-                </div>
-                <div>
-                  <span className="block text-[10px] uppercase tracking-widest text-gray-400 mb-1">Color</span>
-                  <span className="text-lg font-serif italic text-[#1a1008]">{puppy.color || 'Standard'}</span>
-                </div>
-                <div>
-                  <span className="block text-[10px] uppercase tracking-widest text-gray-400 mb-1">Investment</span>
-                  <span className="text-lg font-serif italic text-[#D4AF37]">${displayPrice}</span>
+            
+            <div className="flex flex-col md:flex-row">
+              {/* SECTION CAROUSEL - GAUCHE */}
+              <div className="w-full md:w-1/2 bg-gray-100">
+                <div className="h-[400px] md:h-[500px]">
+                  <ImageCarousel 
+                    images={getAllImages()}
+                    puppyName={puppy.name}
+                    fallbackImage="https://via.placeholder.com/600x800?text=Signature+Pets"
+                  />
                 </div>
               </div>
+              
+              {/* SECTION INFORMATIONS - DROITE */}
+              <div className="w-full md:w-1/2 p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-[#D4AF37] tracking-[0.4em] uppercase text-[10px] font-bold">Signature Selection</span>
+                  <div className="h-[1px] flex-1 bg-[#D4AF37]/20"></div>
+                </div>
 
-              <div className="space-y-6 mb-12">
-                <p className="text-gray-500 font-light leading-relaxed italic text-sm">
+                <h2 className="text-3xl md:text-4xl font-serif text-[#1a1008] italic mb-2">
+                  {puppy.name}
+                </h2>
+                <p className="text-[#D4AF37] tracking-[0.2em] text-xs font-bold mb-4 uppercase">{puppy.breed}</p>
+
+                <div className="grid grid-cols-2 gap-4 mb-6 border-y border-[#D4AF37]/10 py-4">
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-widest text-gray-400 mb-1">Gender</span>
+                    <span className="font-bold text-sm">{puppy.gender}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-widest text-gray-400 mb-1">Age</span>
+                    <span className="font-bold text-sm">{puppy.age}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-widest text-gray-400 mb-1">Color</span>
+                    <span className="font-bold text-sm">{puppy.color || 'Standard'}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-widest text-gray-400 mb-1">Investment</span>
+                    <span className="font-bold text-sm text-[#D4AF37]">${displayPrice}</span>
+                  </div>
+                </div>
+
+                {/* Indicateur nombre de photos */}
+                {getAllImages().length > 1 && (
+                  <div className="mb-4 flex items-center gap-2 text-[8px] uppercase tracking-wider text-[#D4AF37] font-bold">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{getAllImages().length} photos in gallery</span>
+                  </div>
+                )}
+
+                <p className="text-gray-500 font-light leading-relaxed mb-6 text-sm">
                   {puppy.description || `This exceptional ${puppy.breed} companion has undergone our "Signature Socialization" program.`}
                 </p>
-              </div>
 
-              {/* BOUTON MODIFIÉ POUR LE LIVE CHAT */}
-              <div className="flex flex-col gap-4">
+                {puppy.pedigree && (
+                  <div className="bg-[#1a1008]/5 p-3 mb-6 rounded-lg">
+                    <p className="text-[8px] uppercase tracking-[0.4em] text-[#D4AF37] font-bold mb-1">Pedigree</p>
+                    <p className="text-xs text-[#1a1008]/70">{puppy.pedigree}</p>
+                  </div>
+                )}
+
+                {/* BOUTON ADOPTION */}
                 <button 
                   onClick={handleApplyForAdoption}
-                  className="w-full bg-[#1a1008] text-white text-[10px] uppercase tracking-[0.4em] font-bold py-5 text-center hover:bg-[#D4AF37] hover:text-[#1a1008] transition-all duration-500 shadow-xl"
+                  className="w-full bg-[#1a1008] text-white text-[10px] uppercase tracking-[0.4em] font-bold py-4 text-center hover:bg-[#D4AF37] hover:text-[#1a1008] transition-all duration-500 shadow-lg rounded-lg"
                 >
                   Apply for Adoption
                 </button>
+                <p className="text-[7px] text-gray-400 text-center uppercase tracking-wider mt-2">
+                  All adoptions include health guarantee & pedigree certificate
+                </p>
               </div>
             </div>
           </div>
