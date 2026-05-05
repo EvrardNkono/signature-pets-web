@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// 1. IMPORTATION DU COMPOSANT (Vérifie bien le chemin du fichier)
 import AdminChat from './AdminChat'; 
 
 // --- INTELLIGENT URL LOGIC ---
@@ -27,8 +26,10 @@ const EMPTY_DOG = {
   status: "Available", 
   description: "", 
   pedigree: "", 
-  image: null, 
-  imageFile: null 
+  mainImage: null,        // Single hero image (displayed on homepage card)
+  mainImageFile: null,    // File for main image
+  galleryImages: [],      // Array of existing gallery images
+  galleryFiles: []        // New gallery files to upload
 };
 
 const EMPTY_BREED = {
@@ -44,13 +45,17 @@ const EMPTY_BREED = {
 export default function SignaturePetsDashboard() {
   const [dogs, setDogs] = useState([]);
   const [breeds, setBreeds] = useState([]);
-  const [view, setView] = useState("dogs"); // "dogs", "breeds", ou "chat"
+  const [view, setView] = useState("dogs");
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); 
   const [current, setCurrent] = useState(EMPTY_DOG);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toast, setToast] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Separate preview states
+  const [mainImagePreview, setMainImagePreview] = useState(null);
+  const [galleryPreviews, setGalleryPreviews] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -80,28 +85,94 @@ export default function SignaturePetsDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleFileChange = (e) => {
+  // Handle main image selection (single)
+  const handleMainImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setMainImagePreview(previewUrl);
       setCurrent(prev => ({
         ...prev,
-        image: URL.createObjectURL(file),
-        imageFile: file
+        mainImageFile: file
       }));
     }
+  };
+
+  // Handle gallery images selection (multiple)
+  const handleGalleryFilesChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const previews = files.map(file => URL.createObjectURL(file));
+      setGalleryPreviews(prev => [...prev, ...previews]);
+      
+      setCurrent(prev => ({
+        ...prev,
+        galleryFiles: [...(prev.galleryFiles || []), ...files]
+      }));
+    }
+  };
+
+  // Remove a gallery preview image
+  const removeGalleryPreview = (indexToRemove) => {
+    URL.revokeObjectURL(galleryPreviews[indexToRemove]);
+    setGalleryPreviews(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    setCurrent(prev => ({
+      ...prev,
+      galleryFiles: prev.galleryFiles.filter((_, idx) => idx !== indexToRemove)
+    }));
+  };
+
+  // Remove existing gallery image (from server)
+  const removeExistingGalleryImage = (imageUrlToRemove) => {
+    setCurrent(prev => ({
+      ...prev,
+      galleryImages: prev.galleryImages.filter(img => img !== imageUrlToRemove)
+    }));
   };
 
   const handleSave = async () => {
     const isPuppy = view === "dogs";
     const formData = new FormData();
     
-    Object.keys(current).forEach(key => {
-      if (key === 'imageFile' && current[key]) {
-        formData.append(isPuppy ? 'images' : 'heroImage', current[key]);
-      } else if (!['image', 'imageFile', '_id', 'createdAt', 'updatedAt', '__v', 'images', 'heroImage'].includes(key)) {
-        formData.append(key, current[key] ?? "");
+    if (isPuppy) {
+      // Add main image if exists
+      if (current.mainImageFile) {
+        formData.append('mainImage', current.mainImageFile);
       }
-    });
+      
+      // Add gallery images if any
+      if (current.galleryFiles && current.galleryFiles.length > 0) {
+        current.galleryFiles.forEach(file => {
+          formData.append('galleryImages', file);
+        });
+      }
+      
+      // Send existing gallery images as JSON string
+      if (current.galleryImages && current.galleryImages.length > 0) {
+        formData.append('existingGalleryImages', JSON.stringify(current.galleryImages));
+      }
+      
+      // Add all other fields
+      Object.keys(current).forEach(key => {
+        if (!['mainImageFile', 'galleryFiles', 'galleryImages', 'mainImage', '_id', 'createdAt', 'updatedAt', '__v'].includes(key)) {
+          if (current[key] !== null && current[key] !== undefined) {
+            formData.append(key, current[key]);
+          }
+        }
+      });
+    } else {
+      // Breeds: single image
+      if (current.imageFile) {
+        formData.append('heroImage', current.imageFile);
+      }
+      Object.keys(current).forEach(key => {
+        if (!['imageFile', 'image', '_id', 'createdAt', 'updatedAt', '__v', 'heroImage'].includes(key)) {
+          if (current[key] !== null && current[key] !== undefined) {
+            formData.append(key, current[key]);
+          }
+        }
+      });
+    }
 
     const urlBase = isPuppy ? API_PUPPIES : API_BREEDS;
     const method = current._id ? 'PUT' : 'POST';
@@ -115,12 +186,78 @@ export default function SignaturePetsDashboard() {
         showToast(current._id ? "✓ Updated Successfully" : "✓ Created Successfully");
         fetchData();
         setModal(null);
+        resetForm();
       } else {
         showToast(`❌ ${result.error || "Save Error"}`);
       }
     } catch (err) {
       showToast("❌ Failed to connect to server");
     }
+  };
+
+  const handleAddGalleryImages = async () => {
+    if (!current._id || !current.galleryFiles || current.galleryFiles.length === 0) {
+      showToast("❌ No images to add");
+      return;
+    }
+
+    const formData = new FormData();
+    current.galleryFiles.forEach(file => {
+      formData.append('images', file);
+    });
+
+    try {
+      const res = await fetch(`${API_PUPPIES}/${current._id}/images/add`, {
+        method: 'POST',
+        body: formData
+      });
+      const result = await res.json();
+
+      if (res.ok && result.success) {
+        showToast(`✓ ${result.addedImages.length} image(s) added to gallery!`);
+        fetchData();
+        setModal(null);
+        resetForm();
+      } else {
+        showToast(`❌ ${result.error || "Add failed"}`);
+      }
+    } catch (err) {
+      showToast("❌ Failed to connect to server");
+    }
+  };
+
+  const resetForm = () => {
+    setCurrent(EMPTY_DOG);
+    setMainImagePreview(null);
+    setGalleryPreviews([]);
+    // Cleanup object URLs
+    galleryPreviews.forEach(preview => URL.revokeObjectURL(preview));
+    if (mainImagePreview) URL.revokeObjectURL(mainImagePreview);
+  };
+
+  const openFormModal = (item = null) => {
+    if (view === "dogs") {
+      if (item) {
+        // Editing existing puppy
+        setCurrent({ 
+          ...item, 
+          mainImageFile: null, 
+          galleryFiles: [],
+          mainImage: item.images?.[0] || null,
+          galleryImages: item.images?.slice(1) || [] // First image is main, rest are gallery
+        });
+        setMainImagePreview(item.images?.[0] || null);
+        setGalleryPreviews([]);
+      } else {
+        // New puppy
+        setCurrent(EMPTY_DOG);
+        setMainImagePreview(null);
+        setGalleryPreviews([]);
+      }
+    } else {
+      setCurrent(item || EMPTY_BREED);
+    }
+    setModal("form");
   };
 
   const confirmDelete = async () => {
@@ -169,7 +306,6 @@ export default function SignaturePetsDashboard() {
             <span>📚</span> Breeds Library
           </button>
 
-          {/* 2. NOUVEAU BOUTON LIVE CHAT */}
           <div className="pt-4 mt-4 border-t border-white/5">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#8a7060] mb-4 font-bold">Communication</div>
             <button onClick={() => { setView("chat"); setIsSidebarOpen(false); }} className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl text-sm font-bold transition-all ${view === "chat" ? 'bg-[#C8A84B] text-[#1a1008] shadow-lg' : 'text-[#8a7060] hover:bg-white/5'}`}>
@@ -184,17 +320,16 @@ export default function SignaturePetsDashboard() {
 
       {/* MAIN VIEW */}
       <main className="flex-1 overflow-y-auto relative bg-[#FAF6F0]">
-        {/* 3. AFFICHAGE CONDITIONNEL DU CHAT OU DU RESTE */}
         {view === "chat" ? (
           <AdminChat />
         ) : (
           <>
             <header className="px-6 py-6 md:h-24 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between sticky top-0 bg-[#FAF6F0]/80 backdrop-blur-xl z-40 border-b border-[#F2EBE0] gap-4">
               <h2 className="font-['Playfair_Display'] text-2xl md:text-3xl font-black capitalize">
-                {view === "dogs" ? "Breed Inventory" : "Breed Library"}
+                {view === "dogs" ? "Puppy Inventory" : "Breed Library"}
               </h2>
               <button 
-                onClick={() => { setCurrent(view === "dogs" ? EMPTY_DOG : EMPTY_BREED); setModal("form"); }}
+                onClick={() => openFormModal()}
                 className="w-full md:w-auto bg-[#1a1008] text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-xl hover:scale-105 transition-all"
               >
                 ＋ Add {view === "dogs" ? "Puppy" : "Breed"}
@@ -211,9 +346,15 @@ export default function SignaturePetsDashboard() {
                         <div className="h-48 md:h-56 rounded-[24px] overflow-hidden relative">
                           <img src={dog.images?.[0] || 'https://via.placeholder.com/400'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
                           <div className="absolute top-4 right-4 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all">
-                             <button onClick={() => { setCurrent(dog); setModal("form"); }} className="p-2 bg-white rounded-xl shadow-lg hover:text-[#C1654A] text-lg">✏️</button>
+                             <button onClick={() => openFormModal(dog)} className="p-2 bg-white rounded-xl shadow-lg hover:text-[#C1654A] text-lg">✏️</button>
                              <button onClick={() => { setDeleteTarget(dog._id); setModal("delete"); }} className="p-2 bg-white rounded-xl shadow-lg hover:text-red-500 text-lg">🗑️</button>
                           </div>
+                          {/* Gallery badge */}
+                          {dog.images && dog.images.length > 1 && (
+                            <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg">
+                              <span className="text-white text-[9px] font-bold">🎨 Gallery: {dog.images.length - 1} photos</span>
+                            </div>
+                          )}
                         </div>
                         <div className="p-4">
                           <div className="flex justify-between items-start">
@@ -225,7 +366,7 @@ export default function SignaturePetsDashboard() {
                             <span className="text-lg font-black text-[#1a1008]">${dog.price}</span>
                           </div>
                           <div className="mt-4 pt-4 border-t border-dashed flex justify-between items-center">
-                            <span className="text-[10px] text-[#8a7060] uppercase font-bold tracking-widest">{dog.color || "No Color N/A"}</span>
+                            <span className="text-[10px] text-[#8a7060] uppercase font-bold tracking-widest">{dog.color || "No Color"}</span>
                             <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase ${dog.status === 'Available' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
                               {dog.status}
                             </span>
@@ -253,7 +394,7 @@ export default function SignaturePetsDashboard() {
                             <td className="p-6 font-bold">{b.title}</td>
                             <td className="p-6 text-sm text-[#8a7060]">{b.origin}</td>
                             <td className="p-6 text-right space-x-4">
-                              <button onClick={() => { setCurrent(b); setModal("form"); }} className="text-[#C1654A] font-bold text-xs uppercase tracking-widest">Edit</button>
+                              <button onClick={() => openFormModal(b)} className="text-[#C1654A] font-bold text-xs uppercase tracking-widest">Edit</button>
                               <button onClick={() => { setDeleteTarget(b._id); setModal("delete"); }} className="text-red-500 font-bold text-xs uppercase tracking-widest">Delete</button>
                             </td>
                           </tr>
@@ -268,10 +409,10 @@ export default function SignaturePetsDashboard() {
         )}
       </main>
 
-      {/* FORM MODAL */}
+      {/* FORM MODAL - WITH SEPARATE MAIN IMAGE & GALLERY */}
       {modal === "form" && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1a1008]/60 backdrop-blur-md overflow-y-auto">
-          <div className="bg-white w-full max-w-2xl rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-10 my-auto">
+          <div className="bg-white w-full max-w-4xl rounded-[30px] md:rounded-[40px] shadow-2xl p-6 md:p-10 my-auto">
             <h2 className="text-2xl md:text-3xl font-['Playfair_Display'] font-black mb-6 md:mb-8">
                 {current._id ? "Edit" : "Add"} {view === "dogs" ? "Puppy" : "Breed"}
             </h2>
@@ -279,12 +420,13 @@ export default function SignaturePetsDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-h-[60vh] overflow-y-auto px-2">
               {view === "dogs" ? (
                 <>
+                  {/* Basic Information */}
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Name</label>
+                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Name *</label>
                     <input className="p-4 bg-[#FAF6F0] rounded-2xl outline-none border border-transparent focus:border-[#C1654A]" value={current.name} onChange={e => setCurrent({...current, name: e.target.value})} placeholder="e.g. Bella" />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Breed</label>
+                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Breed *</label>
                     <select className="p-4 bg-[#FAF6F0] rounded-2xl outline-none" value={current.breed} onChange={e => setCurrent({...current, breed: e.target.value})}>
                       <option value="">Select a breed...</option>
                       {breeds.map(b => <option key={b._id} value={b.title}>{b.title}</option>)}
@@ -305,7 +447,7 @@ export default function SignaturePetsDashboard() {
                     <input className="p-4 bg-[#FAF6F0] rounded-2xl outline-none" value={current.color} onChange={e => setCurrent({...current, color: e.target.value})} placeholder="e.g. Fawn" />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Price ($)</label>
+                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Price ($) *</label>
                     <input type="number" className="p-4 bg-[#FAF6F0] rounded-2xl outline-none" value={current.price} onChange={e => setCurrent({...current, price: e.target.value})} />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -318,8 +460,106 @@ export default function SignaturePetsDashboard() {
                     <label className="text-[10px] font-black uppercase text-[#8a7060]">Pedigree</label>
                     <input className="p-4 bg-[#FAF6F0] rounded-2xl outline-none" value={current.pedigree} onChange={e => setCurrent({...current, pedigree: e.target.value})} placeholder="e.g. AKC Certified" />
                   </div>
+                  
+                  {/* MAIN IMAGE SECTION - Single Hero Image */}
+                  <div className="md:col-span-2 flex flex-col gap-3 p-4 bg-[#FAF6F0] rounded-2xl border-2 border-[#C8A84B]/20">
+                    <label className="text-[12px] font-black uppercase text-[#C1654A] flex items-center gap-2">
+                      ⭐ MAIN IMAGE (Hero / Cover)
+                      <span className="text-[8px] text-[#8a7060] font-normal">- Displayed on homepage cards</span>
+                    </label>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleMainImageChange}
+                      className="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-[#C1654A] file:text-white cursor-pointer"
+                    />
+                    {(mainImagePreview || current.mainImage) && (
+                      <div className="mt-2">
+                        <p className="text-[9px] text-[#8a7060] mb-2">Current Main Image:</p>
+                        <img 
+                          src={mainImagePreview || current.mainImage} 
+                          className="w-32 h-32 object-cover rounded-xl border-2 border-[#C1654A] shadow-md" 
+                          alt="Main"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* GALLERY SECTION - Multiple Images for Carousel */}
+                  <div className="md:col-span-2 flex flex-col gap-3 p-4 bg-[#FAF6F0] rounded-2xl border-2 border-dashed border-[#C8A84B]/40">
+                    <label className="text-[12px] font-black uppercase text-[#C8A84B] flex items-center gap-2">
+                      🎨 GALLERY (Carousel Images)
+                      <span className="text-[8px] text-[#8a7060] font-normal">- For the photo carousel</span>
+                    </label>
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/*"
+                      onChange={handleGalleryFilesChange}
+                      className="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-[#C8A84B] file:text-[#1a1008] cursor-pointer"
+                    />
+                    
+                    {/* New Gallery Previews */}
+                    {galleryPreviews.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-[9px] text-[#8a7060] mb-2">🆕 New gallery images ({galleryPreviews.length}):</p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {galleryPreviews.map((preview, idx) => (
+                            <div key={`new-${idx}`} className="relative group">
+                              <img 
+                                src={preview} 
+                                alt={`Gallery ${idx + 1}`} 
+                                className="w-full h-20 object-cover rounded-lg border-2 border-[#C8A84B]"
+                              />
+                              <button
+                                onClick={() => removeGalleryPreview(idx)}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:scale-110 transition"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Existing Gallery Images */}
+                    {current.galleryImages && current.galleryImages.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-[9px] text-[#8a7060] mb-2">📸 Current gallery ({current.galleryImages.length} images):</p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {current.galleryImages.map((img, idx) => (
+                            <div key={`existing-${idx}`} className="relative group">
+                              <img 
+                                src={img} 
+                                alt={`Gallery ${idx + 1}`} 
+                                className="w-full h-20 object-cover rounded-lg border border-gray-300"
+                              />
+                              <button
+                                onClick={() => removeExistingGalleryImage(img)}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] hover:scale-110 transition"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-[8px] text-[#8a7060] italic mt-2">
+                      💡 Tip: Gallery images will appear in the carousel when viewing puppy details (max 10 images)
+                    </p>
+                  </div>
+                  
+                  {/* DESCRIPTION */}
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Description & Details</label>
+                    <textarea rows="3" className="p-4 bg-[#FAF6F0] rounded-2xl outline-none border border-transparent focus:border-[#C1654A]" value={current.description} onChange={e => setCurrent({...current, description: e.target.value})} placeholder="Write details here..."></textarea>
+                  </div>
                 </>
               ) : (
+                // SECTION BREEDS
                 <>
                   <div className="flex flex-col gap-2 md:col-span-2">
                     <label className="text-[10px] font-black uppercase text-[#8a7060]">Breed Name</label>
@@ -333,26 +573,56 @@ export default function SignaturePetsDashboard() {
                     <label className="text-[10px] font-black uppercase text-[#8a7060]">Temperament</label>
                     <input className="p-4 bg-[#FAF6F0] rounded-2xl outline-none" value={current.temperament} onChange={e => setCurrent({...current, temperament: e.target.value})} placeholder="e.g. Playful" />
                   </div>
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Media (Hero Image)</label>
+                    <input type="file" onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setCurrent(prev => ({
+                          ...prev,
+                          heroImage: URL.createObjectURL(file),
+                          imageFile: file
+                        }));
+                      }
+                    }} className="text-xs cursor-pointer" />
+                    {(current.heroImage || current.image) && (
+                      <img src={current.heroImage || current.image} className="h-24 w-24 object-cover rounded-2xl mt-2 shadow-md" alt="Preview" />
+                    )}
+                  </div>
+                  <div className="md:col-span-2 flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase text-[#8a7060]">Description</label>
+                    <textarea rows="3" className="p-4 bg-[#FAF6F0] rounded-2xl outline-none" value={current.description} onChange={e => setCurrent({...current, description: e.target.value})}></textarea>
+                  </div>
                 </>
               )}
-
-              <div className="md:col-span-2 flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase text-[#8a7060]">Media (Image)</label>
-                <input type="file" onChange={handleFileChange} className="text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-[#C8A84B] file:text-white cursor-pointer" />
-                {(current.image || (current.images && current.images[0]) || current.heroImage) && (
-                  <img src={current.image || (current.images ? current.images[0] : current.heroImage)} className="h-24 w-24 object-cover rounded-2xl mt-2 shadow-md border-2 border-[#C1654A]" alt="Preview" />
-                )}
-              </div>
-              
-              <div className="md:col-span-2 flex flex-col gap-2">
-                <label className="text-[10px] font-black uppercase text-[#8a7060]">Description & Details</label>
-                <textarea rows="3" className="p-4 bg-[#FAF6F0] rounded-2xl outline-none border border-transparent focus:border-[#C1654A]" value={current.description} onChange={e => setCurrent({...current, description: e.target.value})} placeholder="Write details here..."></textarea>
-              </div>
             </div>
 
-            <div className="mt-8 flex flex-col-reverse md:flex-row justify-end gap-4">
-              <button onClick={() => setModal(null)} className="px-8 py-4 font-bold text-[#8a7060]">Cancel</button>
-              <button onClick={handleSave} className="px-10 py-4 bg-[#C1654A] text-white font-bold rounded-2xl shadow-xl hover:bg-[#9E4A32] transition-all">Save Changes</button>
+            <div className="mt-8 flex flex-col gap-3">
+              <div className="flex flex-col-reverse md:flex-row justify-end gap-4">
+                <button onClick={() => {
+                  setModal(null);
+                  resetForm();
+                }} className="px-8 py-4 font-bold text-[#8a7060]">Cancel</button>
+                <button onClick={handleSave} className="px-10 py-4 bg-[#C1654A] text-white font-bold rounded-2xl shadow-xl hover:bg-[#9E4A32] transition-all">
+                  {current._id ? "Update" : "Create"}
+                </button>
+              </div>
+              
+              {/* Special button to add more gallery images to existing puppy */}
+              {current._id && view === "dogs" && current.galleryFiles && current.galleryFiles.length > 0 && (
+                <button 
+                  onClick={handleAddGalleryImages}
+                  className="w-full py-3 bg-[#C8A84B] text-[#1a1008] font-bold rounded-2xl shadow-lg hover:scale-[1.02] transition-all text-sm"
+                >
+                  🎨 Add {current.galleryFiles.length} New Photo(s) to Gallery (Keep Existing)
+                </button>
+              )}
+              
+              <p className="text-[8px] text-center text-[#8a7060] mt-2">
+                {view === "dogs" 
+                  ? "⭐ Main Image = Card display | 🎨 Gallery = Carousel (Select multiple with Ctrl+Click / Cmd+Click)" 
+                  : "Accepted formats: JPG, PNG (max 5MB)"}
+              </p>
             </div>
           </div>
         </div>

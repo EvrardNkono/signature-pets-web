@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import ImageCarousel from './ImageCarousel';
 
 const FeaturedPuppies = () => {
   const [puppies, setPuppies] = useState([]);
@@ -35,10 +36,7 @@ const FeaturedPuppies = () => {
 
   // --- LOGIQUE DU LIVE CHAT (ADOPTION) ---
   const handleInquiry = (puppy) => {
-    // 1. Fermer la modal locale
     setSelectedPuppy(null);
-
-    // 2. Déclencher le Live Chat
     const chatEvent = new CustomEvent('openSignatureChat', {
       detail: {
         mode: 'ADOPTION',
@@ -47,19 +45,31 @@ const FeaturedPuppies = () => {
         message: `Hello Signature Pets! I am interested in ${puppy.name}, the ${puppy.breed} featured on your homepage. Is this companion still available?`
       }
     });
-
     window.dispatchEvent(chatEvent);
   };
 
-  const getImageUrl = (puppy) => {
+  const getImageUrl = (puppy, index = 0) => {
     let path = null;
-    if (puppy.images && puppy.images.length > 0) {
-      path = puppy.images[0];
-    } else if (puppy.image) {
+    if (puppy.images && puppy.images.length > index) {
+      path = puppy.images[index];
+    } else if (puppy.image && index === 0) {
       path = puppy.image;
     }
     if (!path) return 'https://via.placeholder.com/600x800?text=Signature+Pets';
     return path.startsWith('http') ? path : `${API_BASE_URL}/${path}`;
+  };
+
+  // Fonction pour récupérer TOUTES les images d'un chiot
+  const getAllImages = (puppy) => {
+    if (puppy.images && puppy.images.length > 0) {
+      return puppy.images
+        .filter(img => img && img.trim() !== '')
+        .map(img => img.startsWith('http') ? img : `${API_BASE_URL}/${img}`);
+    }
+    if (puppy.image) {
+      return [puppy.image.startsWith('http') ? puppy.image : `${API_BASE_URL}/${puppy.image}`];
+    }
+    return ['https://via.placeholder.com/600x800?text=Signature+Pets'];
   };
 
   if (loading) {
@@ -95,7 +105,7 @@ const FeaturedPuppies = () => {
               <div className="relative mb-10">
                 <div className="relative overflow-hidden aspect-[4/5] z-10 shadow-2xl">
                   <img 
-                    src={getImageUrl(puppy)} 
+                    src={getImageUrl(puppy, 0)} 
                     alt={puppy.name} 
                     loading="lazy"
                     className="h-full w-full object-cover transform group-hover:scale-110 transition-transform duration-[2s] ease-out" 
@@ -158,18 +168,33 @@ const FeaturedPuppies = () => {
         )}
       </div>
 
-      {/* --- MODAL --- */}
+      {/* --- MODALE AVEC CAROUSEL (VERSION RESPONSIVE AVEC SCROLL) --- */}
       {selectedPuppy && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-brand-dark/95 backdrop-blur-sm" onClick={() => setSelectedPuppy(null)}></div>
-          <div className="relative bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row shadow-2xl animate-in fade-in zoom-in duration-300">
-            <button onClick={() => setSelectedPuppy(null)} className="absolute top-4 right-4 z-20 text-brand-dark hover:text-brand-gold text-2xl">✕</button>
-            <div className="w-full md:w-1/2 h-[350px] md:h-auto">
-              <img src={getImageUrl(selectedPuppy)} alt={selectedPuppy.name} className="w-full h-full object-cover" />
+          
+          {/* Container principal - scrollable sur mobile */}
+          <div className="relative bg-white w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto">
+            <button onClick={() => setSelectedPuppy(null)} className="fixed top-4 right-4 z-30 text-brand-dark hover:text-brand-gold text-2xl bg-white/90 rounded-full w-10 h-10 flex items-center justify-center shadow-lg md:absolute md:top-4 md:right-4">
+              ✕
+            </button>
+            
+            {/* SECTION CAROUSEL - Pleine largeur sur mobile, 1/2 sur desktop */}
+            <div className="w-full md:w-1/2 md:float-left md:sticky md:top-0 bg-gray-100">
+              <div className="h-[400px] md:h-[600px]">
+                <ImageCarousel 
+                  images={getAllImages(selectedPuppy)}
+                  puppyName={selectedPuppy.name}
+                  fallbackImage="https://via.placeholder.com/600x800?text=Signature+Pets"
+                />
+              </div>
             </div>
-            <div className="p-8 md:p-12 flex flex-col justify-center flex-1">
-              <span className="text-brand-gold tracking-[0.4em] uppercase text-[10px] font-bold mb-2">Signature Choice</span>
-              <h2 className="text-5xl font-serif text-brand-dark italic mb-6">{selectedPuppy.name}</h2>
+            
+            {/* SECTION INFORMATIONS - Côté droit, scrollable */}
+            <div className="w-full md:w-1/2 md:float-right p-6 md:p-10 pb-10">
+              <span className="text-brand-gold tracking-[0.4em] uppercase text-[10px] font-bold mb-2 block">Signature Choice</span>
+              <h2 className="text-4xl md:text-5xl font-serif text-brand-dark italic mb-6">{selectedPuppy.name}</h2>
+              
               <div className="grid grid-cols-2 gap-6 mb-8 border-y border-gray-100 py-6 font-sans text-brand-dark">
                 <div>
                   <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Breed</p>
@@ -179,12 +204,30 @@ const FeaturedPuppies = () => {
                   <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Price</p>
                   <p className="font-bold text-brand-terracotta text-lg">${selectedPuppy.price ? selectedPuppy.price.toLocaleString() : "TBD"}</p>
                 </div>
+                <div>
+                  <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Gender</p>
+                  <p className="font-bold">{selectedPuppy.gender}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Age</p>
+                  <p className="font-bold">{selectedPuppy.age}</p>
+                </div>
               </div>
+              
               <p className="text-gray-500 font-light leading-relaxed mb-8 text-sm italic">
                 {selectedPuppy.description || "Raising standard of excellence for your future companion."}
               </p>
               
-              {/* BOUTON MODIFIÉ POUR LE LIVE CHAT */}
+              {/* Indicateur du nombre de photos disponibles */}
+              {getAllImages(selectedPuppy).length > 1 && (
+                <div className="mb-6 flex items-center gap-2 text-[8px] uppercase tracking-wider text-brand-gold font-bold">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span>{getAllImages(selectedPuppy).length} photos in gallery</span>
+                </div>
+              )}
+              
               <button 
                 onClick={() => handleInquiry(selectedPuppy)}
                 disabled={selectedPuppy.status !== 'Available'}
@@ -197,6 +240,9 @@ const FeaturedPuppies = () => {
                 {selectedPuppy.status === 'Available' ? `Inquire to Buy ${selectedPuppy.name}` : 'Reserved'}
               </button>
             </div>
+            
+            {/* Clearfix pour le float */}
+            <div className="clear-both hidden md:block"></div>
           </div>
         </div>
       )}
