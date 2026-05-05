@@ -168,81 +168,82 @@ const FeaturedPuppies = () => {
         )}
       </div>
 
-      {/* --- MODALE AVEC CAROUSEL (VERSION RESPONSIVE AVEC SCROLL) --- */}
+      {/* --- MODALE AVEC CAROUSEL - VERSION FINALE --- */}
       {selectedPuppy && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-brand-dark/95 backdrop-blur-sm" onClick={() => setSelectedPuppy(null)}></div>
           
-          {/* Container principal - scrollable sur mobile */}
-          <div className="relative bg-white w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] flex flex-col shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto">
-            <button onClick={() => setSelectedPuppy(null)} className="fixed top-4 right-4 z-30 text-brand-dark hover:text-brand-gold text-2xl bg-white/90 rounded-full w-10 h-10 flex items-center justify-center shadow-lg md:absolute md:top-4 md:right-4">
+          {/* Container principal avec scroll global sur mobile */}
+          <div className="relative bg-white w-full max-w-6xl rounded-2xl shadow-2xl overflow-y-auto max-h-[95vh] md:max-h-[90vh]">
+            <button onClick={() => setSelectedPuppy(null)} className="sticky md:absolute top-4 right-4 z-30 text-brand-dark hover:text-brand-gold text-2xl bg-white/90 rounded-full w-10 h-10 flex items-center justify-center shadow-lg ml-auto mr-4 mt-4 md:mt-0">
               ✕
             </button>
             
-            {/* SECTION CAROUSEL - Pleine largeur sur mobile, 1/2 sur desktop */}
-            <div className="w-full md:w-1/2 md:float-left md:sticky md:top-0 bg-gray-100">
-              <div className="h-[400px] md:h-[600px]">
-                <ImageCarousel 
-                  images={getAllImages(selectedPuppy)}
-                  puppyName={selectedPuppy.name}
-                  fallbackImage="https://via.placeholder.com/600x800?text=Signature+Pets"
-                />
-              </div>
-            </div>
-            
-            {/* SECTION INFORMATIONS - Côté droit, scrollable */}
-            <div className="w-full md:w-1/2 md:float-right p-6 md:p-10 pb-10">
-              <span className="text-brand-gold tracking-[0.4em] uppercase text-[10px] font-bold mb-2 block">Signature Choice</span>
-              <h2 className="text-4xl md:text-5xl font-serif text-brand-dark italic mb-6">{selectedPuppy.name}</h2>
-              
-              <div className="grid grid-cols-2 gap-6 mb-8 border-y border-gray-100 py-6 font-sans text-brand-dark">
-                <div>
-                  <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Breed</p>
-                  <p className="font-bold">{selectedPuppy.breed}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Price</p>
-                  <p className="font-bold text-brand-terracotta text-lg">${selectedPuppy.price ? selectedPuppy.price.toLocaleString() : "TBD"}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Gender</p>
-                  <p className="font-bold">{selectedPuppy.gender}</p>
-                </div>
-                <div>
-                  <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Age</p>
-                  <p className="font-bold">{selectedPuppy.age}</p>
+            <div className="flex flex-col md:flex-row">
+              {/* SECTION CAROUSEL - GAUCHE */}
+              <div className="w-full md:w-1/2 bg-gray-100">
+                <div className="h-[400px] md:h-[500px]">
+                  <ImageCarousel 
+                    images={getAllImages(selectedPuppy)}
+                    puppyName={selectedPuppy.name}
+                    fallbackImage="https://via.placeholder.com/600x800?text=Signature+Pets"
+                  />
                 </div>
               </div>
               
-              <p className="text-gray-500 font-light leading-relaxed mb-8 text-sm italic">
-                {selectedPuppy.description || "Raising standard of excellence for your future companion."}
-              </p>
-              
-              {/* Indicateur du nombre de photos disponibles */}
-              {getAllImages(selectedPuppy).length > 1 && (
-                <div className="mb-6 flex items-center gap-2 text-[8px] uppercase tracking-wider text-brand-gold font-bold">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span>{getAllImages(selectedPuppy).length} photos in gallery</span>
+              {/* SECTION INFORMATIONS - DROITE (scroll natif sur mobile) */}
+              <div className="w-full md:w-1/2 p-6 md:p-8">
+                <div>
+                  <span className="text-brand-gold tracking-[0.4em] uppercase text-[10px] font-bold mb-2 block">Signature Choice</span>
+                  <h2 className="text-3xl md:text-4xl font-serif text-brand-dark italic mb-4">{selectedPuppy.name}</h2>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6 border-y border-gray-100 py-4">
+                    <div>
+                      <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Breed</p>
+                      <p className="font-bold text-sm">{selectedPuppy.breed}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Price</p>
+                      <p className="font-bold text-brand-terracotta text-lg">${selectedPuppy.price ? selectedPuppy.price.toLocaleString() : "TBD"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Gender</p>
+                      <p className="font-bold text-sm">{selectedPuppy.gender}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase text-gray-400 tracking-widest mb-1">Age</p>
+                      <p className="font-bold text-sm">{selectedPuppy.age}</p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-500 font-light leading-relaxed mb-6 text-sm">
+                    {selectedPuppy.description || "Raising standard of excellence for your future companion."}
+                  </p>
+                  
+                  {/* Indicateur du nombre de photos disponibles */}
+                  {getAllImages(selectedPuppy).length > 1 && (
+                    <div className="mb-4 flex items-center gap-2 text-[8px] uppercase tracking-wider text-brand-gold font-bold">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>{getAllImages(selectedPuppy).length} photos in gallery</span>
+                    </div>
+                  )}
+                  
+                  <button 
+                    onClick={() => handleInquiry(selectedPuppy)}
+                    disabled={selectedPuppy.status !== 'Available'}
+                    className={`w-full py-4 text-[10px] uppercase tracking-[0.4em] font-bold transition-all shadow-lg rounded-lg ${
+                      selectedPuppy.status === 'Available' 
+                      ? 'bg-brand-dark text-white hover:bg-brand-gold hover:text-brand-dark' 
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    {selectedPuppy.status === 'Available' ? `Inquire to Buy ${selectedPuppy.name}` : 'Reserved'}
+                  </button>
                 </div>
-              )}
-              
-              <button 
-                onClick={() => handleInquiry(selectedPuppy)}
-                disabled={selectedPuppy.status !== 'Available'}
-                className={`w-full py-5 text-[10px] uppercase tracking-[0.4em] font-bold transition-all shadow-xl ${
-                  selectedPuppy.status === 'Available' 
-                  ? 'bg-brand-dark text-white hover:bg-brand-gold hover:text-brand-dark' 
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {selectedPuppy.status === 'Available' ? `Inquire to Buy ${selectedPuppy.name}` : 'Reserved'}
-              </button>
+              </div>
             </div>
-            
-            {/* Clearfix pour le float */}
-            <div className="clear-both hidden md:block"></div>
           </div>
         </div>
       )}
