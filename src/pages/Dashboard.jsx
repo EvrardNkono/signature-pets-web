@@ -132,59 +132,121 @@ export default function SignaturePetsDashboard() {
     }));
   };
 
-  const handleSave = async () => {
+const handleSave = async () => {
+  console.log('=== STARTING SAVE ===');
+  console.log('View:', view);
+  console.log('Is editing:', !!current._id);
+  
   setIsSaving(true);
   const isPuppy = view === "dogs";
   const formData = new FormData();
   
+  // VALIDATION AVANT ENVOI
   if (isPuppy) {
-    // ⚠️ IMPORTANT: N'utilisez que 'images' comme nom de champ (pas 'mainImage' ou 'galleryImages')
+    console.log('=== VALIDATION PUPPY FIELDS ===');
+    console.log('Name:', current.name);
+    console.log('Breed:', current.breed);
+    console.log('Price:', current.price);
+    console.log('Gender:', current.gender);
+    console.log('Status:', current.status);
+    
+    if (!current.name || current.name.trim() === '') {
+      console.error('❌ Validation failed: Name is required');
+      showToast("❌ Name is required");
+      setIsSaving(false);
+      return;
+    }
+    
+    if (!current.breed || current.breed.trim() === '') {
+      console.error('❌ Validation failed: Breed is required');
+      console.log('Current breed value:', current.breed);
+      console.log('Type of breed:', typeof current.breed);
+      showToast("❌ Please select a breed from the list");
+      setIsSaving(false);
+      return;
+    }
+    
+    if (!current.price || current.price === '') {
+      console.error('❌ Validation failed: Price is required');
+      showToast("❌ Price is required");
+      setIsSaving(false);
+      return;
+    }
+    
+    console.log('✅ All validations passed!');
     
     // Ajouter l'image principale en premier
     if (current.mainImageFile) {
+      console.log('📸 Adding main image file:', current.mainImageFile.name);
       formData.append('images', current.mainImageFile);
+    } else {
+      console.log('⚠️ No new main image file');
     }
     
-    // Ajouter les images de la galerie (même nom de champ 'images')
+    // Ajouter les images de la galerie
     if (current.galleryFiles && current.galleryFiles.length > 0) {
-      current.galleryFiles.forEach(file => {
+      console.log(`📸 Adding ${current.galleryFiles.length} gallery images:`);
+      current.galleryFiles.forEach((file, idx) => {
+        console.log(`  - ${file.name}`);
         formData.append('images', file);
       });
+    } else {
+      console.log('⚠️ No new gallery images');
     }
     
-    // IMPORTANT: Envoyer les images existantes comme un champ texte
-    // Combiner l'image principale et les images de galerie existantes
+    // Envoyer les images existantes
     const allExistingImages = [];
-    if (current.mainImage) allExistingImages.push(current.mainImage);
+    if (current.mainImage) {
+      console.log('📷 Existing main image:', current.mainImage);
+      allExistingImages.push(current.mainImage);
+    }
     if (current.galleryImages && current.galleryImages.length > 0) {
+      console.log(`📷 Existing gallery images (${current.galleryImages.length}):`, current.galleryImages);
       allExistingImages.push(...current.galleryImages);
     }
     
     if (allExistingImages.length > 0) {
+      console.log(`📦 Sending ${allExistingImages.length} existing images as JSON`);
       formData.append('existingImages', JSON.stringify(allExistingImages));
     }
     
     // Ajouter tous les autres champs
+    console.log('📝 Adding other fields:');
     Object.keys(current).forEach(key => {
-      // Exclure tous les champs liés aux images et les champs système
       const excludedKeys = [
         'mainImageFile', 'galleryFiles', 'galleryImages', 'mainImage', 
         'images', '_id', 'createdAt', 'updatedAt', '__v'
       ];
       if (!excludedKeys.includes(key)) {
-        if (current[key] !== null && current[key] !== undefined) {
+        if (current[key] !== null && current[key] !== undefined && current[key] !== '') {
+          console.log(`  - ${key}: ${current[key]}`);
           formData.append(key, current[key]);
+        } else {
+          console.log(`  - ${key}: (empty/skipped)`);
         }
       }
     });
   } else {
-    // Breeds: une seule image
+    // Breeds validation
+    console.log('=== VALIDATION BREED FIELDS ===');
+    console.log('Title:', current.title);
+    
+    if (!current.title || current.title.trim() === '') {
+      console.error('❌ Validation failed: Breed title is required');
+      showToast("❌ Breed title is required");
+      setIsSaving(false);
+      return;
+    }
+    
     if (current.imageFile) {
+      console.log('📸 Adding breed image:', current.imageFile.name);
       formData.append('heroImage', current.imageFile);
     }
+    
     Object.keys(current).forEach(key => {
       if (!['imageFile', 'image', '_id', 'createdAt', 'updatedAt', '__v', 'heroImage'].includes(key)) {
-        if (current[key] !== null && current[key] !== undefined) {
+        if (current[key] !== null && current[key] !== undefined && current[key] !== '') {
+          console.log(`  - ${key}: ${current[key]}`);
           formData.append(key, current[key]);
         }
       }
@@ -195,23 +257,31 @@ export default function SignaturePetsDashboard() {
   const method = current._id ? 'PUT' : 'POST';
   const url = current._id ? `${urlBase}/${current._id}` : urlBase;
   
+  console.log(`🌐 Sending ${method} request to: ${url}`);
+  
   try {
     const res = await fetch(url, { method, body: formData });
     const result = await res.json();
+    
+    console.log('📡 Response status:', res.status);
+    console.log('📡 Response data:', result);
 
     if (res.ok && result.success) {
+      console.log('✅ Save successful!');
       showToast(current._id ? "✓ Updated Successfully" : "✓ Created Successfully");
       await fetchData();
       setModal(null);
       resetForm();
     } else {
+      console.error('❌ Save failed:', result.error);
       showToast(`❌ ${result.error || "Save Error"}`);
     }
   } catch (err) {
-    console.error('Save error:', err);
+    console.error('❌ Network error:', err);
     showToast("❌ Failed to connect to server");
   } finally {
     setIsSaving(false);
+    console.log('=== SAVE COMPLETED ===');
   }
 };
 
